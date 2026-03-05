@@ -11,10 +11,11 @@ import {
 import LockOutlineIcon from "@mui/icons-material/LockOutline";
 import api from "../../axios/axios"
 import { Link, } from "react-router-dom";
+import { Password } from "@mui/icons-material";
 
 
 function Login() {
-  const [user, setUser] = useState({ cpf: "", senha: "" });
+  const [user, setUser] = useState({ email: "", password: "" });
 
 
   const onChange = (event) => {
@@ -36,6 +37,7 @@ function Login() {
 
   return (
     <Container component="main" maxWidth="xs">
+      
       <Box
         sx={{
           marginTop: 8,
@@ -44,15 +46,15 @@ function Login() {
           alignItems: "center",
         }}
       >
-        <Avatar sx={{ margin: 1, backgroundColor: "blue" }}>
-          <LockOutlineIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Welcome to Senai
+        <Typography 
+        component="h1" 
+        variant="h5"
+        sx={{color: "white"}}>
+        LOGIN
         </Typography>
         <Box
           component="form"
-          sx={{ mt: 1 }}
+          sx={{ mt: 3}}
           onSubmit={handleSubmit}
           noValidate
         >
@@ -60,29 +62,31 @@ function Login() {
             margin="normal"
             required
             fullWidth
-            label="cpf"
-            id="cpf"
-            name="cpf"
-            value={user.cpf}
+            label="Email"
+            id="email"
+            name="Email"
+            value={user.email}
             onChange={onChange}
+            sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
           />
 
           <TextField
             margin="normal"
             required
             fullWidth
-            label="senha"
-            id="senha"
-            name="senha"
-            value={user.senha}
+            label="Senha"
+            id="password"
+            name="Senha"
+            value={user.password}
             onChange={onChange}
+            sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
+
           />
-          <Button type="submit" fullWidth sx={{ mt: 3, mb: 2 }}>
+          <div sx={{justifyContent: "center"}}>
+          <Button type="submit" variant="contained" sx={{alignItems:"center", borderRadius: "10px"}}>
             ENTRAR
           </Button>
-          <Button fullWidth variant="contained" component={Link} to="/cadastro">
-            Faça seu cadastro
-          </Button>
+          </div>
         </Box>
       </Box>
     </Container>
