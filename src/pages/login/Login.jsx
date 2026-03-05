@@ -10,13 +10,12 @@ import {
 } from "@mui/material";
 import LockOutlineIcon from "@mui/icons-material/LockOutline";
 import api from "../../axios/axios"
-import { Link,useNavigate } from "react-router-dom";
+import { Link, } from "react-router-dom";
 
 
 function Login() {
   const [user, setUser] = useState({ cpf: "", senha: "" });
 
-  const navigate = useNavigate();
 
   const onChange = (event) => {
     const { name, value } = event.target;
@@ -29,7 +28,6 @@ function Login() {
     try{
       const response = await api.postLogin(user)
       alert("O servidor disse: " + response.data.message)
-      return navigate("home");
     } catch (error){
       alert("Erro: " + error.response)
       

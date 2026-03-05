@@ -1,6 +1,5 @@
 // Import de páginas
 import Login from "./pages/login/Login";
-import Cadastro from "./pages/cadastro/Cadastro";
 
 //Import das funções do router
 import { 
@@ -16,7 +15,6 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login/>}/>
-          <Route path="/cadastro" element={<Cadastro/>}/>
         </Routes>
       </BrowserRouter>
     </div>
