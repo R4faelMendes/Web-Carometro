@@ -64,7 +64,7 @@ function Login() {
             fullWidth
             label="Email"
             id="email"
-            name="Email"
+            name="email"
             value={user.email}
             onChange={onChange}
             sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
@@ -76,16 +76,20 @@ function Login() {
             fullWidth
             label="Senha"
             id="password"
-            name="Senha"
+            name="password"
             value={user.password}
             onChange={onChange}
             sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
 
           />
-          <div sx={{justifyContent: "center"}}>
-          <Button type="submit" variant="contained" sx={{alignItems:"center", borderRadius: "10px"}}>
-            ENTRAR
-          </Button>
+          
+          <div style={{ display: "flex", justifyContent: "center"}}>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ borderRadius: "10px"}}>
+              ENTRAR
+            </Button>
           </div>
         </Box>
       </Box>
