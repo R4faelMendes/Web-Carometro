@@ -91,6 +91,11 @@ function Login() {
               ENTRAR
             </Button>
           </div>
+          <div>
+            <Typography sx={{color: "white", mt: 2, }}>
+              Não tem conta? <Link to="/user">Cadastre-se</Link>
+            </Typography>
+          </div>
         </Box>
       </Box>
     </Container>

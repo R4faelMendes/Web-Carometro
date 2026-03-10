@@ -1,5 +1,6 @@
 // Import de páginas
 import Login from "./pages/login/Login";
+import Register from "./pages/register/Register";
 
 //Import das funções do router
 import { 
@@ -15,6 +16,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login/>}/>
+          <Route path="/" element={<Register/>}/>
+
         </Routes>
       </BrowserRouter>
     </div>
