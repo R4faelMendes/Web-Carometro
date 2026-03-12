@@ -2,8 +2,6 @@ import { useState } from "react";
 import {
   TextField,
   Button,
-  Avatar,
-  CssBaseline,
   Box,
   Container,
   Typography,
@@ -12,7 +10,7 @@ import LockOutlineIcon from "@mui/icons-material/LockOutline";
 import api from "../../axios/axios"
 import { Link, } from "react-router-dom";
 import { Password } from "@mui/icons-material";
-
+import logo from "../../assets/logo.png"
 
 function Login() {
   const [user, setUser] = useState({ email: "", password: "" });
@@ -38,9 +36,20 @@ function Login() {
   return (
     <Container component="main" maxWidth="xs">
       
+    <Box
+      sx={{
+        position: "absolute",
+        top: 20,
+        right: 20,
+      }}
+    >
+      <img src={logo} alt="logo" width={80} />
+    </Box>
+
+
       <Box
         sx={{
-          marginTop: 8,
+          marginTop: 4,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -48,13 +57,14 @@ function Login() {
       >
         <Typography 
         component="h1" 
-        variant="h5"
+        variant="h3"
+        fontWeight="bold"
         sx={{color: "white"}}>
         LOGIN
         </Typography>
         <Box
           component="form"
-          sx={{ mt: 3}}
+          sx={{ mt: 2}}
           onSubmit={handleSubmit}
           noValidate
         >
@@ -84,12 +94,16 @@ function Login() {
           />
           
           <div style={{ display: "flex", justifyContent: "center"}}>
+            <Link to="/home">
             <Button
               type="submit"
               variant="contained"
-              sx={{ borderRadius: "10px"}}>
+              sx={{ borderRadius: "10px"}}
+              onClick={() => navigate("/home")}
+>
               ENTRAR
             </Button>
+            </Link>
           </div>
           <div>
                <Link to="/register">

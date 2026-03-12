@@ -6,7 +6,11 @@ import {
   CssBaseline,
   Box,
   Container,
-  Typography
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import api from "../../axios/axios";
@@ -14,29 +18,28 @@ import { Link } from "react-router-dom";
 
 function Register() {
   const [user, setUser] = useState({
-    nome: "",
-    senha: "",
-    telefone: "",
-    cpf: "",
-    email: "",
+    user_name: "",
+    user_password: "",
+    user_cpf: "",
+    user_email: "",
+    user_type: "",
   });
 
   const onChange = (event) => {
     const { name, value } = event.target;
     setUser((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    try{
-      const response = await api.postCadastro(user)
-      alert(response.data.message)
-    } catch (error){
-      alert(error.response.data.error)
-
+    try {
+      const response = await api.postCadastro(user);
+      alert(response.data.message);
+    } catch (error) {
+      alert(error.response.data.message);
     }
   };
 
@@ -45,26 +48,31 @@ function Register() {
       <CssBaseline />
       <Box
         sx={{
-          marginTop: 8,
+          marginTop: 2,
           display: "flex",
           flexDirection: "column",
-          alignItems: "center"
+          alignItems: "center",
         }}
       >
-        <Typography component="h1" variant="h5" sx={{color: "white"}}>
-            CADASTRO
+        <Typography component="h1" variant="h3" fontWeight="bold" sx={{ color: "white" }}>
+          CADASTRO
         </Typography>
 
-        <Box component="form" onSubmit={handleSubmit} >
+        <Box component="form" onSubmit={handleSubmit}>
           <TextField
             margin="normal"
             required
             fullWidth
             label="Nome"
-            name="nome"
-            value={user.nome}
+            name="user_name"
+            value={user.user_name}
             onChange={onChange}
-            sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "15px",
+                background: "white",
+              },
+            }}
           />
 
           <TextField
@@ -72,10 +80,15 @@ function Register() {
             required
             fullWidth
             label="Email"
-            name="email"
-            value={user.email}
+            name="user_email"
+            value={user.user_email}
             onChange={onChange}
-            sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "15px",
+                background: "white",
+              },
+            }}
           />
 
           <TextField
@@ -83,21 +96,15 @@ function Register() {
             required
             fullWidth
             label="CPF"
-            name="cpf"
-            value={user.cpf}
+            name="user_cpf"
+            value={user.user_cpf}
             onChange={onChange}
-            sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
-          />
-
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Telefone"
-            name="telefone"
-            value={user.telefone}
-            onChange={onChange}
-            sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "15px",
+                background: "white",
+              },
+            }}
           />
 
           <TextField
@@ -105,23 +112,50 @@ function Register() {
             required
             fullWidth
             label="Senha"
-            name="senha"
-            value={user.senha}
+            name="user_password"
+            value={user.user_password}
             onChange={onChange}
-            sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "15px",
+                background: "white",
+              },
+            }}
           />
+          <FormControl
+            fullWidth
+            margin="normal"
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "15px",
+                background: "white",
+              },
+            }}
+          >
+            <InputLabel>Tipo de Usuário</InputLabel>
+            <Select
+              name="user_type"
+              value={user.user_type}
+              label="Tipo de Usuário"
+              onChange={onChange}
+            >
+              <MenuItem value="admin">Administrador</MenuItem>
+              <MenuItem value="regular">Usuário Regular</MenuItem>
+            </Select>
+          </FormControl>
 
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ borderRadius: "10px",mt: 1}}>
+            sx={{ borderRadius: "10px", mt: 1 }}
+          >
             Cadastrar
           </Button>
 
-          <Link to="/register">
-            <Typography sx={{color: "white", mt: 1 }}>
-              Não tem conta?Cadastre-se
+          <Link to="/login">
+            <Typography sx={{ color: "white", mt: 1 }}>
+                Já tem uma conta? Entre!
             </Typography>
           </Link>
         </Box>
