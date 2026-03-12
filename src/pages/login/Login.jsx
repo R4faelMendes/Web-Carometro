@@ -63,9 +63,9 @@ function Login() {
             required
             fullWidth
             label="Email"
-            id="email"
-            name="email"
-            value={user.email}
+            id="user_email"
+            name="user_email"
+            value={user.user_email}
             onChange={onChange}
             sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
           />
@@ -75,9 +75,9 @@ function Login() {
             required
             fullWidth
             label="Senha"
-            id="password"
-            name="password"
-            value={user.password}
+            id="user_password"
+            name="user_password"
+            value={user.user_password}
             onChange={onChange}
             sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
 
@@ -92,9 +92,11 @@ function Login() {
             </Button>
           </div>
           <div>
+               <Link to="/register">
             <Typography sx={{color: "white", mt: 2, }}>
-              Não tem conta? <Link to="/user">Cadastre-se</Link>
+              Não tem conta?Cadastre-se
             </Typography>
+             </Link>
           </div>
         </Box>
       </Box>

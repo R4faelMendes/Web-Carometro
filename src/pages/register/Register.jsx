@@ -51,15 +51,11 @@ function Register() {
           alignItems: "center"
         }}
       >
-        <Avatar sx={{ margin: 1, bgcolor: "green" }}>
-          <AddIcon />
-        </Avatar>
-
-        <Typography component="h1" variant="h5">
-          Página de Cadastro
+        <Typography component="h1" variant="h5" sx={{color: "white"}}>
+            CADASTRO
         </Typography>
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={handleSubmit} >
           <TextField
             margin="normal"
             required
@@ -68,26 +64,7 @@ function Register() {
             name="nome"
             value={user.nome}
             onChange={onChange}
-          />
-
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Senha"
-            name="senha"
-            value={user.senha}
-            onChange={onChange}
-          />
-
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Telefone"
-            name="telefone"
-            value={user.telefone}
-            onChange={onChange}
+            sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
           />
 
           <TextField
@@ -98,6 +75,7 @@ function Register() {
             name="email"
             value={user.email}
             onChange={onChange}
+            sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
           />
 
           <TextField
@@ -108,20 +86,44 @@ function Register() {
             name="cpf"
             value={user.cpf}
             onChange={onChange}
+            sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
           />
 
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Telefone"
+            name="telefone"
+            value={user.telefone}
+            onChange={onChange}
+            sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
+          />
+
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Senha"
+            name="senha"
+            value={user.senha}
+            onChange={onChange}
+            sx={{'& .MuiOutlinedInput-root': {borderRadius: '15px', background: "white"}}}
+          />
 
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
+            sx={{ borderRadius: "10px",mt: 1}}>
             Cadastrar
           </Button>
-          <Button fullWidth variant="contained" component={Link} to="/">
-          Já possui conta? Faça Login
-          </Button>
+
+          <Link to="/register">
+            <Typography sx={{color: "white", mt: 1 }}>
+              Não tem conta?Cadastre-se
+            </Typography>
+          </Link>
         </Box>
       </Box>
     </Container>
