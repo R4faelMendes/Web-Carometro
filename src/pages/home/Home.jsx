@@ -10,13 +10,12 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
-  Typography
+  Typography,
+  Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import { Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Padding } from "@mui/icons-material";
-
 
 function Home() {
   const [open, setOpen] = useState(false);
@@ -43,28 +42,66 @@ function Home() {
               alt="logo"
               style={{
                 width: 80,
-                marginTop: 8
+                marginTop: 8,
               }}
             />
           </Toolbar>
         </Container>
       </AppBar>
 
-    <Container sx={{ mt: 6, textAlign: "center",color:"White"}}>
-        <Typography variant="h3" fontWeight="bold">
-          Seja Bem-Vindo ao Carômetro Escolar <br/>Interativo
-        </Typography>
+      <Container
+        sx={{
+          height: "80vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "center",
+        }}
+      >
+        <Box sx={{ maxWidth: 800 }}>
+          <Typography variant="h3" fontWeight="bold" sx={{ color: "white" }}>
+            Seja Bem-Vindo ao Carômetro Escolar Inteirativo
+          </Typography>
 
-        <ArrowForwardIcon />
+          <Typography variant="h5" sx={{ mt: 2, color: "white" }}>
+            → O CEI é um sistema escolar que busca facilitar o trabalho de
+            docentes e coordenadores!
+          </Typography>
+
+          <Button
+            component={Link}
+            to="/login"
+            variant="contained"
+            fullWidth
+            sx={{
+              mt: 4,
+              height: 50,
+              fontSize: 16,
+              fontWeight: "bold",
+              borderRadius: "15px",
+            }}
+          >
+            É um membro da corporação? Entre aqui
+          </Button>
+        </Box>
       </Container>
 
-      <Drawer anchor="left" open={open} onClose={closeSidebar}>
+      <Drawer
+        anchor="left"
+        open={open}
+        sx={{
+          "& .MuiDrawer-paper": {
+            backgroundColor: "transparent",
+          },
+        }}
+      >
         <Box
           sx={{
             width: 250,
-            height: "100%",
+            height: "99%",
             backgroundColor: "primary.main",
             color: "white",
+            borderRadius: "20px",
           }}
           onClick={closeSidebar}
         >

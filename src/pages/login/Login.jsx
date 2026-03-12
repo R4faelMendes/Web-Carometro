@@ -6,7 +6,6 @@ import {
   Container,
   Typography,
 } from "@mui/material";
-import LockOutlineIcon from "@mui/icons-material/LockOutline";
 import api from "../../axios/axios"
 import { Link, } from "react-router-dom";
 import { Password } from "@mui/icons-material";

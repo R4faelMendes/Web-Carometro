@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   TextField,
   Button,
-  Avatar,
   CssBaseline,
   Box,
   Container,
@@ -12,7 +11,6 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import api from "../../axios/axios";
 import { Link } from "react-router-dom";
 
