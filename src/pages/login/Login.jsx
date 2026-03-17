@@ -93,16 +93,14 @@ function Login() {
           />
           
           <div style={{ display: "flex", justifyContent: "center"}}>
-            <Link to="/home">
             <Button
               type="submit"
               variant="contained"
               sx={{ borderRadius: "10px"}}
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/")}
 >
               ENTRAR
             </Button>
-            </Link>
           </div>
           <div>
                <Link to="/register">
