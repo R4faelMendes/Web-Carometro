@@ -1,9 +1,9 @@
 // Import de páginas
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
-import Introduction from "./pages/introduction/Introduction";
+import Home from "./pages/home/Home"
 import ProtectedRoute from "./components/ProtectedRoute";
-import Home from "./pages/home/Home";
+import Poshome from "./pages/poshome/Poshome";
 
 
 import { CssBaseline } from "@mui/material";
@@ -24,12 +24,12 @@ function App() {
         <Routes>
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Introduction />} />
+          <Route path="/" element={<Home />} />
           <Route
-            path="/home"
+            path="/poshome"
             element={
               <ProtectedRoute>
-                <Home />
+                <Poshome />
               </ProtectedRoute>
             }
           />

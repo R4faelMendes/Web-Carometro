@@ -32,15 +32,15 @@ function Login() {
     event.preventDefault();
 
     try {
-      console.log("Enviando:", user); // 👈 DEBUG
+      console.log("Enviando:", user);
 
       const response = await api.postLogin(user);
 
       if (response.data.authenticated) {
         localStorage.setItem("authenticated", "true");
-        navigate("/home");
+        navigate("/poshome");
       } else {
-        alert("Credenciais inválidas");
+        // alert("Credenciais inválidas");
       }
 
     } catch (error) {
