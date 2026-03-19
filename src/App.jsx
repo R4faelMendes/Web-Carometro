@@ -3,7 +3,7 @@ import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Home from "./pages/home/Home"
 import ProtectedRoute from "./components/ProtectedRoute";
-import Poshome from "./pages/poshome/Poshome";
+import Menu from "./pages/menu/Menu";
 import { CssBaseline } from "@mui/material";
 import {
   BrowserRouter,
@@ -22,10 +22,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Home />} />
           <Route
-            path="/poshome"
+            path="/menu"
             element={
               <ProtectedRoute>
-                <Poshome />
+                <Menu />
               </ProtectedRoute>
             }
           />

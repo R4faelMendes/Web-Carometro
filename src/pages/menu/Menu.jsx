@@ -1,7 +1,7 @@
 import { Container, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 
-function Home() {
+function Menu() {
   return (
     <Container
       sx={{
@@ -14,7 +14,7 @@ function Home() {
       }}
     >
       <Typography variant="h2" sx={{ color: "white" }}>
-        Home
+        Menu
       </Typography>
 
       <Button
@@ -29,4 +29,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Menu;
