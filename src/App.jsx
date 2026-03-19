@@ -4,11 +4,7 @@ import Register from "./pages/register/Register";
 import Home from "./pages/home/Home"
 import ProtectedRoute from "./components/ProtectedRoute";
 import Poshome from "./pages/poshome/Poshome";
-
-
 import { CssBaseline } from "@mui/material";
-
-//Import das funções do router
 import {
   BrowserRouter,
   Routes,

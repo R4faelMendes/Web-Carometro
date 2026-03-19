@@ -10,12 +10,11 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import api from "../../axios/axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
 function Login() {
   const navigate = useNavigate();
-
   const [user, setUser] = useState({
     user_email: "",
     user_password: ""
@@ -128,11 +127,6 @@ function Login() {
             </Button>
           </Box>
 
-          <Link to="/register" style={{ textDecoration: "none" }}>
-            <Typography sx={{ color: "white", mt: 2, textAlign: "center" }}>
-              Não tem conta? Cadastre-se
-            </Typography>
-          </Link>
 
         </Box>
       </Box>

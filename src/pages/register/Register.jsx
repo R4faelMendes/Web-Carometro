@@ -12,7 +12,6 @@ import {
   MenuItem,
 } from "@mui/material";
 import api from "../../axios/axios";
-import { Link } from "react-router-dom";
 
 function Register() {
   const [user, setUser] = useState({
@@ -151,11 +150,6 @@ function Register() {
             Cadastrar
           </Button>
 
-          <Link to="/login">
-            <Typography sx={{ color: "white", mt: 1 }}>
-                Já tem uma conta? Entre!
-            </Typography>
-          </Link>
         </Box>
       </Box>
     </Container>
