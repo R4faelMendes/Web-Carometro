@@ -32,21 +32,14 @@ function Login() {
     event.preventDefault();
 
     try {
-      console.log("Enviando:", user);
-
-      const response = await api.postLogin(user);
-
-      if (response.data.authenticated) {
-        localStorage.setItem("authenticated", "true");
-        navigate("/poshome");
-      } else {
-        // alert("Credenciais inválidas");
-      }
-
+      const response = await api.postLogin(user)
+      alert("O servidor: disse " + response.data.message)
+    localStorage.setItem("auth","true")
+    return navigate("/home");
     } catch (error) {
-      console.error("Erro completo:", error.response?.data);
-      alert(error.response?.data?.message || "Erro ao fazer login");
+      alert("Erro: " + error.response?.data?.message)
     }
+
   };
 
   return (
