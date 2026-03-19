@@ -10,7 +10,7 @@ function Home() {
         alignItems: "center"
       }}
     >
-      <Typography variant="h2">
+      <Typography variant="h2" sx={{color: "white"}}>
         Home
       </Typography>
     </Container>

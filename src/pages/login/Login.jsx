@@ -35,7 +35,7 @@ function Login() {
       const response = await api.postLogin(user)
       alert("O servidor: disse " + response.data.message)
     localStorage.setItem("auth","true")
-    return navigate("/home");
+    return navigate("/poshome");
     } catch (error) {
       alert("Erro: " + error.response?.data?.message)
     }
