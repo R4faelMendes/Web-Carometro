@@ -12,10 +12,6 @@ import { Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
 function Introduction() {
-  const [open, setOpen] = useState(false);
-
-  const openSidebar = () => setOpen(true);
-  const closeSidebar = () => setOpen(false);
 
   return (
     <>
