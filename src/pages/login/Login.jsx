@@ -6,21 +6,29 @@ import {
   Container,
   Typography,
   IconButton,
-  InputAdornment
+  InputAdornment,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import api from "../../axios/axios";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
+import CustomAlert from "../../components/customAlert/CustomAlert";
 
 function Login() {
   const navigate = useNavigate();
+
   const [user, setUser] = useState({
     user_email: "",
-    user_password: ""
+    user_password: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
+
+  const [alert, setAlert] = useState({
+    show: false,
+    type: "",
+    message: "",
+  });
 
   const onChange = (event) => {
     const { name, value } = event.target;
@@ -31,20 +39,31 @@ function Login() {
     event.preventDefault();
 
     try {
-      const response = await api.postLogin(user)
-      alert("O servidor: disse " + response.data.message)
-    localStorage.setItem("auth","true")
-    return navigate("/menu");
-    } catch (error) {
-      alert("Erro: " + error.response?.data?.message)
-    }
+      const response = await api.postLogin(user);
 
+      setAlert({
+        show: true,
+        type: "success",
+        message: response.data.message || "Login realizado com sucesso!",
+      });
+
+      localStorage.setItem("auth", "true");
+
+      setTimeout(() => {
+        navigate("/menu");
+      }, 1500);
+
+    } catch (error) {
+      setAlert({
+        show: true,
+        type: "error",
+        message: error.response?.data?.message || "Erro ao fazer login",
+      });
+    }
   };
 
   return (
     <Container component="main" maxWidth="xs">
-
-      {/* Logo */}
       <Box
         sx={{
           position: "absolute",
@@ -72,8 +91,15 @@ function Login() {
           LOGIN
         </Typography>
 
-        <Box component="form" sx={{ mt: 2 }} onSubmit={handleSubmit} noValidate>
+        {alert.show && (
+          <CustomAlert
+            type={alert.type}
+            message={alert.message}
+            onClose={() => setAlert({ ...alert, show: false })}
+          />
+        )}
 
+        <Box component="form" sx={{ mt: 2 }} onSubmit={handleSubmit} noValidate>
           <TextField
             margin="normal"
             required
@@ -83,10 +109,10 @@ function Login() {
             value={user.user_email}
             onChange={onChange}
             sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '15px',
-                background: "white"
-              }
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "15px",
+                background: "white",
+              },
             }}
           />
 
@@ -100,10 +126,10 @@ function Login() {
             value={user.user_password}
             onChange={onChange}
             sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '15px',
-                background: "white"
-              }
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "15px",
+                background: "white",
+              },
             }}
             InputProps={{
               endAdornment: (
@@ -112,7 +138,7 @@ function Login() {
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
-              )
+              ),
             }}
           />
 
@@ -126,8 +152,6 @@ function Login() {
               ENTRAR
             </Button>
           </Box>
-
-
         </Box>
       </Box>
     </Container>

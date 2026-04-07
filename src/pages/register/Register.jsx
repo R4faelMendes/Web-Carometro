@@ -12,11 +12,12 @@ import {
   MenuItem,
 } from "@mui/material";
 import api from "../../axios/axios";
+import CustomAlert from "../../components/customAlert/CustomAlert";
+
 
 function Register() {
   const [user, setUser] = useState({
     user_name: "",
-    user_password: "",
     user_cpf: "",
     user_email: "",
     user_type: "",
@@ -30,14 +31,30 @@ function Register() {
     }));
   };
 
+  const [alert, setAlert] = useState({
+    show: false,
+    type: "",
+    message: "",
+  });
+
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
       const response = await api.postCadastro(user);
-      alert(response.data.message);
+      setAlert({
+        show: true,
+        type: "success",
+        message: response.data.message || "Cadastro realizado com sucesso!",
+      });
+
     } catch (error) {
-      alert(error.response.data.message);
-    }
+      setAlert({
+        show: true,
+        type: "error",
+        message: "Erro ao tentar cadastrar",
+      });   
+     }
   };
 
   return (
@@ -104,21 +121,6 @@ function Register() {
             }}
           />
 
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Senha"
-            name="user_password"
-            value={user.user_password}
-            onChange={onChange}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "15px",
-                background: "white",
-              },
-            }}
-          />
           <FormControl
             fullWidth
             margin="normal"
