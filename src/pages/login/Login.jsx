@@ -41,6 +41,8 @@ function Login() {
     try {
       const response = await api.postLogin(user);
 
+      const apiUser = response.data.user;
+
       setAlert({
         show: true,
         type: "success",
@@ -48,6 +50,14 @@ function Login() {
       });
 
       localStorage.setItem("auth", "true");
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          name: apiUser.user_name,
+          role: apiUser.user_type,
+        })
+      );
 
       setTimeout(() => {
         navigate("/menu");
@@ -64,13 +74,7 @@ function Login() {
 
   return (
     <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          position: "absolute",
-          top: 20,
-          right: 20,
-        }}
-      >
+      <Box sx={{ position: "absolute", top: 20, right: 20 }}>
         <img src={logo} alt="logo" width={80} />
       </Box>
 
@@ -82,12 +86,7 @@ function Login() {
           alignItems: "center",
         }}
       >
-        <Typography
-          component="h1"
-          variant="h3"
-          fontWeight="bold"
-          sx={{ color: "white" }}
-        >
+        <Typography variant="h3" fontWeight="bold" sx={{ color: "white" }}>
           LOGIN
         </Typography>
 
@@ -99,7 +98,7 @@ function Login() {
           />
         )}
 
-        <Box component="form" sx={{ mt: 2 }} onSubmit={handleSubmit} noValidate>
+        <Box component="form" sx={{ mt: 2 }} onSubmit={handleSubmit}>
           <TextField
             margin="normal"
             required
@@ -142,16 +141,18 @@ function Login() {
             }}
           />
 
-          <Box sx={{ mt: 2 }}>
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              sx={{ borderRadius: "10px", height: 45 }}
-            >
-              ENTRAR
-            </Button>
-          </Box>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{
+              mt: 2,
+              borderRadius: "10px",
+              backgroundColor: "#2957A4", 
+            }}
+          >
+            ENTRAR
+          </Button>
         </Box>
       </Box>
     </Container>

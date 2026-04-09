@@ -10,11 +10,7 @@ import { Link } from "react-router-dom";
 import Layout from "../../components/whitePag/WhitePag";
 
 function Menu() {
-  // 🔥 depois você troca isso pelos dados do backend
-  const user = {
-    name: "Adriano Cassiano Donisete",
-    role: "ADMIN",
-  };
+  const user = JSON.parse(localStorage.getItem("user")) || {};
 
   return (
     <Layout>
@@ -27,86 +23,48 @@ function Menu() {
             justifyContent: "space-between",
           }}
         >
-          {/* LADO ESQUERDO */}
           <Box sx={{ width: "45%" }}>
-            {/* USER INFO */}
             <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
-              <Avatar sx={{ width: 60, height: 60, mr: 2 }} />
+              
+              <Avatar sx={{ width: 60, height: 60, mr: 2 }}>
+                {user.name ? user.name[0] : "U"}
+              </Avatar>
 
               <Box>
                 <Typography variant="h6">
-                  Olá, {user.name}
+                  Olá, {user.name || "Usuário"}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {user.role}
+                  {user.role || "Sem cargo"}
                 </Typography>
               </Box>
             </Box>
 
-            {/* BOTÕES */}
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <Button
-                variant="contained"
-                component={Link}
-                to="/register"
-                sx={{
-                  borderRadius: "20px",
-                  height: 45,
-                  backgroundColor: "#2957A4",
-                }}
-              >
+              <Button variant="contained" component={Link} to="/register" sx={{borderRadius: "15px"}}>
                 Listar Usuários
               </Button>
 
-              <Button
-                variant="contained"
-                component={Link}
-                to="/register"
-                sx={{
-                  borderRadius: "20px",
-                  height: 45,
-                  backgroundColor: "#2957A4",
-                }}
-              >
+              <Button variant="contained" component={Link} to="/register" sx={{borderRadius: "15px"}}>
                 Listar Turmas
               </Button>
 
-              <Button
-                variant="contained"
-                component={Link}
-                to="/register"
-                sx={{
-                  borderRadius: "20px",
-                  height: 45,
-                  backgroundColor: "#2957A4",
-                }}
-              >
+              <Button variant="contained" component={Link} to="/register" sx={{borderRadius: "15px"}}>
                 Histórico de Ocorrências
               </Button>
 
-              <Button
-                variant="contained"
-                component={Link}
-                to="/register"
-                sx={{
-                  borderRadius: "20px",
-                  height: 45,
-                  backgroundColor: "#2957A4",
-                }}
-              >
+              <Button variant="contained" component={Link} to="/register" sx={{borderRadius: "15px"}}>
                 Adicionar Usuários
               </Button>
             </Box>
           </Box>
 
-          {/* LINHA DIVISÓRIA */}
           <Divider
             orientation="vertical"
             flexItem
             sx={{ backgroundColor: "#2957A4", width: "2px" }}
           />
 
-          {/* LADO DIREITO (VAZIO) */}
           <Box
             sx={{
               width: "45%",
@@ -116,7 +74,7 @@ function Menu() {
             }}
           >
             <Typography color="text.secondary">
-              {/* vazio por enquanto */}
+              {/* futuro histórico */}
             </Typography>
           </Box>
         </Box>
