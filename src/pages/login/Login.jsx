@@ -39,9 +39,24 @@ function Login() {
     event.preventDefault();
 
     try {
-      const response = await api.postLogin(user);
+      const response = await api.postLogin({
+        user_email: user.user_email,
+        user_password: user.user_password,
+      });
 
-      const apiUser = response.data.user;
+      const apiUser = response.data.user || {};
+
+      // 🔐 salva token
+      localStorage.setItem("token", response.data.token);
+
+      // 👤 salva dados do usuário
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          name: apiUser.user_name || "",
+          role: apiUser.user_type || "",
+        })
+      );
 
       setAlert({
         show: true,
@@ -49,25 +64,18 @@ function Login() {
         message: response.data.message || "Login realizado com sucesso!",
       });
 
-      localStorage.setItem("auth", "true");
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          name: apiUser.user_name,
-          role: apiUser.user_type,
-        })
-      );
-
       setTimeout(() => {
         navigate("/menu");
       }, 1500);
 
     } catch (error) {
+      console.log("ERRO:", error.response?.data);
+
       setAlert({
         show: true,
         type: "error",
-        message: error.response?.data?.message || "Erro ao fazer login",
+        message:
+          error.response?.data?.message || "Erro ao fazer login",
       });
     }
   };
@@ -145,11 +153,7 @@ function Login() {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{
-              mt: 2,
-              borderRadius: "10px",
-              backgroundColor: "#2957A4", 
-            }}
+            sx={{ mt: 2, borderRadius: "15px" }}
           >
             ENTRAR
           </Button>
