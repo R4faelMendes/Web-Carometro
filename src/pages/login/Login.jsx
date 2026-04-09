@@ -44,24 +44,30 @@ function Login() {
         user_password: user.user_password,
       });
 
-      const apiUser = response.data.user || {};
+      console.log("RESPOSTA API:", response.data);
 
-      // 🔐 salva token
-      localStorage.setItem("token", response.data.token);
+      const data = response.data;
 
-      // 👤 salva dados do usuário
+      // 🔥 funciona com QUALQUER formato de API
+      const name = data.user?.user_name || data.user_name || "";
+      const role = data.user?.user_type || data.user_type || "";
+
+      // salvar token
+      localStorage.setItem("token", data.token);
+
+      // salvar user
       localStorage.setItem(
         "user",
         JSON.stringify({
-          name: apiUser.user_name || "",
-          role: apiUser.user_type || "",
+          name,
+          role,
         })
       );
 
       setAlert({
         show: true,
         type: "success",
-        message: response.data.message || "Login realizado com sucesso!",
+        message: data.message || "Login realizado com sucesso!",
       });
 
       setTimeout(() => {
@@ -74,11 +80,11 @@ function Login() {
       setAlert({
         show: true,
         type: "error",
-        message:
-          error.response?.data?.message || "Erro ao fazer login",
+        message: error.response?.data?.message || "Erro ao fazer login",
       });
     }
   };
+
 
   return (
     <Container component="main" maxWidth="xs">
