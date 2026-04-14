@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/protectedRouted/ProtectedRoute";
 import Menu from "./pages/menu/Menu";
 import { CssBaseline } from "@mui/material";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Dashboard from "./pages/listUsers/ListUsers";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
               //</ProtectedRoute>
             }
           />
+          <Route path="/listusers" element={<Dashboard />}/>
         </Routes>
       </BrowserRouter>
     </div>
