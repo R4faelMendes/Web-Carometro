@@ -18,7 +18,7 @@ function Menu() {
     { id: 3, nome: "Sala 3" },
   ];
 
-  const isAdmin = user.role?.toLowerCase() === "admin";
+  //const isAdmin = user.role?.toLowerCase() === "admin";
 
   return (
     <Layout>

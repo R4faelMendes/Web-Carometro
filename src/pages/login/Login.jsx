@@ -39,44 +39,31 @@ function Login() {
     event.preventDefault();
 
     try {
-      const response = await api.postLogin({
-        user_email: user.user_email,
-        user_password: user.user_password,
-      });
+      const response = await api.postLogin(user);
 
-      console.log("RESPOSTA API:", response.data);
-
-      const data = response.data;
-
-      // 🔥 funciona com QUALQUER formato de API
-      const name = data.user?.user_name || data.user_name || "";
-      const role = data.user?.user_type || data.user_type || "";
-
-      // salvar token
-      localStorage.setItem("token", data.token);
-
-      // salvar user
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          name,
-          role,
-        })
-      );
+      const apiUser = response.data.user;
 
       setAlert({
         show: true,
         type: "success",
-        message: data.message || "Login realizado com sucesso!",
+        message: response.data.message || "Login realizado com sucesso!",
       });
+
+      localStorage.setItem("auth", "true");
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          name: apiUser.user_name,
+          role: apiUser.user_type,
+        })
+      );
 
       setTimeout(() => {
         navigate("/menu");
       }, 1500);
 
     } catch (error) {
-      console.log("ERRO:", error.response?.data);
-
       setAlert({
         show: true,
         type: "error",
@@ -84,7 +71,6 @@ function Login() {
       });
     }
   };
-
 
   return (
     <Container component="main" maxWidth="xs">
@@ -159,7 +145,11 @@ function Login() {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 2, borderRadius: "15px" }}
+            sx={{
+              mt: 2,
+              borderRadius: "10px",
+              backgroundColor: "#2957A4", 
+            }}
           >
             ENTRAR
           </Button>
