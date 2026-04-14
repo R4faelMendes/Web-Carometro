@@ -7,6 +7,7 @@ import Menu from "./pages/menu/Menu";
 import { CssBaseline } from "@mui/material";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/listUsers/ListUsers";
+import Turmas from "./pages/listClass/ListClass";
 
 function App() {
   return (
@@ -21,11 +22,12 @@ function App() {
             path="/menu"
             element={
               //<ProtectedRoute>
-                <Menu />
+              <Menu />
               //</ProtectedRoute>
             }
           />
-          <Route path="/listusers" element={<Dashboard />}/>
+          <Route path="/listusers" element={<Dashboard />} />
+          <Route path="/listclass" element={<Turmas />} />
         </Routes>
       </BrowserRouter>
     </div>

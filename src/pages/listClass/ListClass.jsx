@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import LayoutBase from "../../components/layoutBase/LayoutBase";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   Box,
   Typography,
@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button
+  Button,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +20,7 @@ function Usuarios() {
   const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
+  const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [openEdit, setOpenEdit] = useState(false);
@@ -44,10 +45,10 @@ function Usuarios() {
 
       await api.put(`/users/${user.id}`, {
         ...user,
-        user_type: newType
+        user_type: newType,
       });
 
-      fetchUsers(); 
+      fetchUsers();
     } catch (error) {
       console.error("Erro ao atualizar user_type:", error);
     }
@@ -83,50 +84,96 @@ function Usuarios() {
     }
   };
 
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
     <LayoutBase>
       <Box sx={{ p: 3 }}>
-
+        {/* HEADER CONTAINER */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 1,
-            mb: 3
+            justifyContent: "space-between",
+            gap: 4,
+            mb: 1,
           }}
         >
-          <IconButton onClick={() => navigate(-1)}>
-            <ArrowBackIcon />
-          </IconButton>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <IconButton onClick={() => navigate(-1)}>
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h5" sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
+              Turmas Cadastradas
+            </Typography>
+          </Box>
 
-          <Typography variant="h5">
-            Usuários Cadastrados 
+          <TextField
+            placeholder="Pesquisar usuário..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{
+              flex: 1,
+              maxHeight: "45px",
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "40px",
+                height: "45px",
+                background: "white",
+                "& fieldset": {
+                  borderWidth: "2px",
+                  borderColor: "black",
+                },
+                "&:hover fieldset": {
+                  borderColor: "black",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "black",
+                },
+              },
+            }}
+          />
+        </Box>
+
+        {/* TEXTO DE INSTRUÇÃO COM LINHA PRETA ACIMA */}
+        <Box
+          sx={{
+            borderTop: "2px solid black", // Trocado de borderBottom para borderTop
+            pt: 1, // Trocado de pb (padding-bottom) para pt (padding-top)
+            mb: 4,
+            ml: 6, // Alinhado com o início do texto após o ícone de voltar
+          }}
+        >
+          <Typography variant="body2" sx={{ color: "#666" }}>
+            Clique na turma para visualizar os alunos
           </Typography>
         </Box>
 
-        {users.map(user => (
+        {/* LISTA DE USUÁRIOS */}
+        {filteredUsers.map((user) => (
           <Box
             key={user.id}
             sx={{
               display: "flex",
               alignItems: "center",
               mb: 2,
-              gap: 2
+              gap: 2,
             }}
           >
-
             <Box
               sx={{
                 flex: 1,
                 background: "#eee",
                 borderRadius: "10px",
                 padding: "12px 20px",
-                border: "1px solid #ccc"
+                border: "1px solid #ccc",
               }}
             >
               {user.name}
             </Box>
 
+            {/* TOGGLE */}
             <Box
               onClick={() => toggleUserType(user)}
               sx={{
@@ -140,7 +187,7 @@ function Usuarios() {
                   user.user_type === "admin" ? "flex-end" : "flex-start",
                 padding: "5px",
                 cursor: "pointer",
-                border: "1px solid #ccc"
+                border: "1px solid #ccc",
               }}
             >
               <Box
@@ -148,8 +195,7 @@ function Usuarios() {
                   width: 30,
                   height: 30,
                   borderRadius: "50%",
-                  background:
-                    user.user_type === "admin" ? "blue" : "black"
+                  background: user.user_type === "admin" ? "blue" : "black",
                 }}
               />
             </Box>
@@ -161,7 +207,7 @@ function Usuarios() {
                 gap: 1,
                 border: "1px solid #ccc",
                 borderRadius: "10px",
-                padding: "5px"
+                padding: "5px",
               }}
             >
               <IconButton onClick={() => handleEdit(user)}>
@@ -172,21 +218,21 @@ function Usuarios() {
                 <Delete sx={{ color: "red" }} />
               </IconButton>
             </Box>
-
           </Box>
         ))}
 
-        {/* MODAL EDIT */}
+        {/* MODAIS (Mantidos conforme original) */}
         <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
           <DialogTitle>Editar Usuário</DialogTitle>
           <DialogContent>
             <TextField
               fullWidth
+              margin="dense"
               value={selectedUser?.name || ""}
               onChange={(e) =>
                 setSelectedUser({
                   ...selectedUser,
-                  name: e.target.value
+                  name: e.target.value,
                 })
               }
             />
@@ -197,7 +243,6 @@ function Usuarios() {
           </DialogActions>
         </Dialog>
 
-        {/* MODAL DELETE */}
         <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
           <DialogTitle>Excluir Usuário</DialogTitle>
           <DialogContent>
@@ -210,7 +255,6 @@ function Usuarios() {
             </Button>
           </DialogActions>
         </Dialog>
-
       </Box>
     </LayoutBase>
   );
