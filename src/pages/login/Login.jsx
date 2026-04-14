@@ -35,42 +35,43 @@ function Login() {
     setUser({ ...user, [name]: value });
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+const handleSubmit = async (event) => {
+  event.preventDefault();
 
-    try {
-      const response = await api.postLogin(user);
+  try {
+    const response = await api.postLogin(user);
 
-      const apiUser = response.data.user;
+    const apiUser = response.data.data; // ✅ correto
+    const token = response.data.token;  // ✅ pega token
 
-      setAlert({
-        show: true,
-        type: "success",
-        message: response.data.message || "Login realizado com sucesso!",
-      });
+    localStorage.setItem("token", token);
 
-      localStorage.setItem("auth", "true");
+localStorage.setItem(
+  "user",
+  JSON.stringify({
+    name: apiUser.user_name,
+    user_type: apiUser.user_type, // ✅ aqui mudou
+  })
+);
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          name: apiUser.user_name,
-          role: apiUser.user_type,
-        })
-      );
+    setAlert({
+      show: true,
+      type: "success",
+      message: response.data.message || "Login realizado com sucesso!",
+    });
 
-      setTimeout(() => {
-        navigate("/menu");
-      }, 1500);
+    setTimeout(() => {
+      navigate("/menu");
+    }, 1500);
 
-    } catch (error) {
-      setAlert({
-        show: true,
-        type: "error",
-        message: error.response?.data?.message || "Erro ao fazer login",
-      });
-    }
-  };
+  } catch (error) {
+    setAlert({
+      show: true,
+      type: "error",
+      message: error.response?.data?.message || "Erro ao fazer login",
+    });
+  }
+};
 
   return (
     <Container component="main" maxWidth="xs">

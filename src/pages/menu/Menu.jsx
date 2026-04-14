@@ -6,11 +6,22 @@ import {
   Divider,
   Avatar,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import Layout from "../../components/whitePag/WhitePag";
 
 function Menu() {
+  const navigate = useNavigate();
+
   const user = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
+
+  // 🔐 proteção extra (caso entre direto na rota)
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, [token, navigate]);
 
   const salas = [
     { id: 1, nome: "Sala 1" },
@@ -18,7 +29,14 @@ function Menu() {
     { id: 3, nome: "Sala 3" },
   ];
 
-  //const isAdmin = user.role?.toLowerCase() === "admin";
+  // ✅ agora usando user_type
+  const isAdmin = user?.user_type?.toLowerCase() === "admin";
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
   return (
     <Layout>
@@ -38,10 +56,10 @@ function Menu() {
 
               <Box>
                 <Typography variant="h6">
-                  Olá, {user.name || "Usuário"}
+                  Olá, {user?.name || "Usuário"}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {user.role || "Sem cargo"}
+                  {user?.user_type || "Sem cargo"}
                 </Typography>
               </Box>
             </Box>
@@ -49,11 +67,11 @@ function Menu() {
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {isAdmin ? (
                 <>
-                  <Button component={Link} to="/usuarios" sx={btnStyle}>
+                  <Button component={Link} to="/listusers" sx={btnStyle}>
                     Listar Usuários
                   </Button>
 
-                  <Button component={Link} to="/turmas" sx={btnStyle}>
+                  <Button component={Link} to="/listclass" sx={btnStyle}>
                     Listar Turmas
                   </Button>
 
@@ -77,6 +95,17 @@ function Menu() {
                   </Button>
                 ))
               )}
+
+              {/* 🔴 botão logout */}
+              <Button
+                onClick={logout}
+                sx={{
+                  ...btnStyle,
+                  backgroundColor: "#d32f2f",
+                }}
+              >
+                Sair
+              </Button>
             </Box>
           </Box>
 

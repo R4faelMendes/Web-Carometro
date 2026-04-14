@@ -14,13 +14,18 @@ import {
 import api from "../../axios/axios";
 import CustomAlert from "../../components/customAlert/CustomAlert";
 
-
 function Register() {
   const [user, setUser] = useState({
     user_name: "",
     user_cpf: "",
     user_email: "",
     user_type: "",
+  });
+
+  const [alert, setAlert] = useState({
+    show: false,
+    type: "",
+    message: "",
   });
 
   const onChange = (event) => {
@@ -31,35 +36,40 @@ function Register() {
     }));
   };
 
-  const [alert, setAlert] = useState({
-    show: false,
-    type: "",
-    message: "",
-  });
-
-
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     try {
       const response = await api.postCadastro(user);
+
       setAlert({
         show: true,
         type: "success",
-        message: response.data.message || "Cadastro realizado com sucesso!",
+        message: response.data.message,
+      });
+
+      setUser({
+        user_name: "",
+        user_cpf: "",
+        user_email: "",
+        user_type: "",
       });
 
     } catch (error) {
       setAlert({
         show: true,
         type: "error",
-        message: "Erro ao tentar cadastrar",
-      });   
-     }
+        message:
+          error.response?.data?.message ||
+          "Erro ao tentar cadastrar usuário",
+      });
+    }
   };
 
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
+
       <Box
         sx={{
           marginTop: 2,
@@ -68,9 +78,19 @@ function Register() {
           alignItems: "center",
         }}
       >
-        <Typography component="h1" variant="h3" fontWeight="bold" sx={{ color: "white" }}>
+        <Typography
+          component="h1"
+          variant="h3"
+          fontWeight="bold"
+          sx={{ color: "white" }}
+        >
           CADASTRO
         </Typography>
+
+        {/* 🔥 ALERTA */}
+        {alert.show && (
+          <CustomAlert type={alert.type} message={alert.message} />
+        )}
 
         <Box component="form" onSubmit={handleSubmit}>
           <TextField
@@ -124,6 +144,7 @@ function Register() {
           <FormControl
             fullWidth
             margin="normal"
+            required
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "15px",
@@ -147,11 +168,10 @@ function Register() {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ borderRadius: "10px", mt: 1 }}
+            sx={{ borderRadius: "10px", mt: 2 }}
           >
             Cadastrar
           </Button>
-
         </Box>
       </Box>
     </Container>

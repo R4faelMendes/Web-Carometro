@@ -16,18 +16,33 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/menu"
-            element={
-              //<ProtectedRoute>
-              <Menu />
-              //</ProtectedRoute>
-            }
-          />
-          <Route path="/listusers" element={<Dashboard />} />
-          <Route path="/listclass" element={<Turmas />} />
+          <Route path="/" element={<Login />} />
+<Route
+  path="/menu"
+  element={
+    <ProtectedRoute>
+      <Menu />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/listusers"
+  element={
+    <ProtectedRoute>
+      <Dashboard />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/listclass"
+  element={
+    <ProtectedRoute>
+      <Turmas />
+    </ProtectedRoute>
+  }
+/>
         </Routes>
       </BrowserRouter>
     </div>
