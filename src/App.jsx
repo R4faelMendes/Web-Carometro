@@ -15,13 +15,21 @@ function App() {
       <CssBaseline />
       <BrowserRouter>
         <Routes>
-          <Route path="/register" element={<Register />} />
           <Route path="/" element={<Login />} />
 <Route
   path="/menu"
   element={
     <ProtectedRoute>
       <Menu />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/register"
+  element={
+    <ProtectedRoute>
+      <Register />
     </ProtectedRoute>
   }
 />
