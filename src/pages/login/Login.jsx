@@ -7,6 +7,10 @@ import {
   Typography,
   IconButton,
   InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import api from "../../axios/axios";
@@ -23,6 +27,8 @@ function Login() {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showModalPassword, setShowModalPassword] = useState(false);
+  const [showModalNewPassword, setShowModalNewPassword] = useState(false);
 
   const [alert, setAlert] = useState({
     show: false,
@@ -30,48 +36,90 @@ function Login() {
     message: "",
   });
 
+  const [openChangePassword, setOpenChangePassword] = useState(false);
+
+  const [passwordData, setPasswordData] = useState({
+    password: "",
+    newPassword: "",
+  });
+
   const onChange = (event) => {
     const { name, value } = event.target;
     setUser({ ...user, [name]: value });
   };
 
-const handleSubmit = async (event) => {
-  event.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  try {
-    const response = await api.postLogin(user);
+    try {
+      const response = await api.postLogin(user);
 
-    const apiUser = response.data.data; // ✅ correto
-    const token = response.data.token;  // ✅ pega token
+      const apiUser = response.data.data;
+      const token = response.data.token;
 
-    localStorage.setItem("token", token);
+      localStorage.setItem("token", token);
 
-localStorage.setItem(
-  "user",
-  JSON.stringify({
-    name: apiUser.user_name,
-    user_type: apiUser.user_type, // ✅ aqui mudou
-  })
-);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          name: apiUser.user_name,
+          user_type: apiUser.user_type,
+        })
+      );
 
-    setAlert({
-      show: true,
-      type: "success",
-      message: response.data.message || "Login realizado com sucesso!",
-    });
+      if (apiUser.first_login) {
+        setOpenChangePassword(true);
+        return;
+      }
 
-    setTimeout(() => {
-      navigate("/menu");
-    }, 1500);
+      setAlert({
+        show: true,
+        type: "success",
+        message:
+          response.data.message || "Login realizado com sucesso!",
+      });
 
-  } catch (error) {
-    setAlert({
-      show: true,
-      type: "error",
-      message: error.response?.data?.message || "Erro ao fazer login",
-    });
-  }
-};
+      setTimeout(() => {
+        navigate("/menu");
+      }, 1500);
+    } catch (error) {
+      setAlert({
+        show: true,
+        type: "error",
+        message:
+          error.response?.data?.message || "Erro ao fazer login",
+      });
+    }
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      await api.patch("/password/user", {
+        password: passwordData.password,
+        newPassword: passwordData.newPassword,
+      });
+
+      setOpenChangePassword(false);
+
+      setAlert({
+        show: true,
+        type: "success",
+        message: "Senha atualizada com sucesso!",
+      });
+
+      setTimeout(() => {
+        navigate("/menu");
+      }, 1500);
+    } catch (error) {
+      setAlert({
+        show: true,
+        type: "error",
+        message:
+          error.response?.data?.message ||
+          "Erro ao atualizar senha",
+      });
+    }
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -149,13 +197,97 @@ localStorage.setItem(
             sx={{
               mt: 2,
               borderRadius: "10px",
-              backgroundColor: "#2957A4", 
+              backgroundColor: "#2957A4",
             }}
           >
             ENTRAR
           </Button>
         </Box>
       </Box>
+
+      <Dialog open={openChangePassword}>
+        <DialogTitle>Primeiro acesso</DialogTitle>
+
+        <DialogContent>
+          <TextField
+            label="Senha atual"
+            type={showModalPassword ? "text" : "password"}
+            fullWidth
+            margin="dense"
+            onChange={(e) =>
+              setPasswordData({
+                ...passwordData,
+                password: e.target.value,
+              })
+            }
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "15px",
+                background: "white",
+              },
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() =>
+                      setShowModalPassword(!showModalPassword)
+                    }
+                  >
+                    {showModalPassword ? (
+                      <VisibilityOff />
+                    ) : (
+                      <Visibility />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <TextField
+            label="Nova senha"
+            type={showModalNewPassword ? "text" : "password"}
+            fullWidth
+            margin="dense"
+            onChange={(e) =>
+              setPasswordData({
+                ...passwordData,
+                newPassword: e.target.value,
+              })
+            }
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "15px",
+                background: "white",
+              },
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() =>
+                      setShowModalNewPassword(!showModalNewPassword)
+                    }
+                  >
+                    {showModalNewPassword ? (
+                      <VisibilityOff />
+                    ) : (
+                      <Visibility />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleChangePassword}>
+            Atualizar senha
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }

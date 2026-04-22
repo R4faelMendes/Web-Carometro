@@ -16,10 +16,9 @@ function Menu() {
   const user = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
 
-  // 🔐 proteção extra (caso entre direto na rota)
   useEffect(() => {
     if (!token) {
-      navigate("/login");
+      navigate("/");
     }
   }, [token, navigate]);
 
@@ -29,13 +28,12 @@ function Menu() {
     { id: 3, nome: "Sala 3" },
   ];
 
-  // ✅ agora usando user_type
   const isAdmin = user?.user_type?.toLowerCase() === "admin";
 
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -50,7 +48,6 @@ function Menu() {
           }}
         >
           <Box sx={{ width: "45%" }}>
-            {/* 👤 USER */}
             <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
               <Avatar sx={{ width: 60, height: 60, mr: 2 }} />
 
@@ -96,7 +93,6 @@ function Menu() {
                 ))
               )}
 
-              {/* 🔴 botão logout */}
               <Button
                 onClick={logout}
                 sx={{
