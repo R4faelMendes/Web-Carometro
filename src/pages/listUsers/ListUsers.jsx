@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import LayoutBase from "../../components/layoutBase/LayoutBase";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   Box,
   Typography,
@@ -10,11 +10,12 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button
+  Button,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import api from "../../axios/axios";
+import CustomAlert from "../../components/customAlert/CustomAlert";
 
 function Usuarios() {
   const navigate = useNavigate();
@@ -25,12 +26,43 @@ function Usuarios() {
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
 
+  const [search, setSearch] = useState("");
+
+  const [alert, setAlert] = useState({
+    show: false,
+    type: "",
+    message: "",
+  });
+
+  // ✅ CORRIGIDO (SUPORTA QUALQUER API)
   const fetchUsers = async () => {
     try {
-      const response = await api.get("/users");
-      setUsers(response.data);
+      const response = await api.getUsers();
+
+      console.log("RESPOSTA:", response.data);
+
+      const rawUsers = Array.isArray(response.data)
+        ? response.data
+        : response.data.data || [];
+
+      const formattedUsers = rawUsers.map((user) => ({
+        user_id: user.user_id ?? user.id ?? null,
+        user_name: user.user_name ?? user.name ?? "Sem nome",
+        user_email: user.user_email ?? user.email ?? "",
+        user_type: user.user_type ?? user.type ?? "regular",
+      }));
+
+      console.log("FORMATADOS:", formattedUsers);
+
+      setUsers(formattedUsers);
     } catch (error) {
-      console.error("Erro ao buscar usuários:", error);
+      console.log(error.response?.data);
+
+      setAlert({
+        show: true,
+        type: "error",
+        message: "Erro ao buscar usuários",
+      });
     }
   };
 
@@ -38,132 +70,223 @@ function Usuarios() {
     fetchUsers();
   }, []);
 
+  const getUserId = (user) => {
+    if (!user) return null;
+    return user.user_id ?? user.id ?? null;
+  };
+
   const toggleUserType = async (user) => {
+    if (!user) return;
+
     try {
       const newType = user.user_type === "admin" ? "regular" : "admin";
 
-      await api.put(`/users/${user.id}`, {
-        ...user,
-        user_type: newType
+      await api.updateUser(getUserId(user), {
+        user_name: user.user_name || "",
+        user_email: user.user_email || "",
+        user_type: newType,
       });
 
-      fetchUsers(); 
+      setAlert({
+        show: true,
+        type: "success",
+        message: "Tipo de usuário atualizado!",
+      });
+
+      fetchUsers();
     } catch (error) {
-      console.error("Erro ao atualizar user_type:", error);
+      console.log(error.response?.data);
+
+      setAlert({
+        show: true,
+        type: "error",
+        message:
+          error.response?.data?.message ||
+          "Erro ao atualizar tipo de usuário",
+      });
     }
   };
 
   const handleEdit = (user) => {
-    setSelectedUser(user);
+    if (!user) return;
+
+    console.log("EDITANDO:", user);
+
+    setSelectedUser({ ...user });
     setOpenEdit(true);
   };
 
   const saveEdit = async () => {
+    if (!selectedUser) return;
+
     try {
-      await api.put(`/users/${selectedUser.id}`, selectedUser);
+      await api.updateUser(getUserId(selectedUser), {
+        user_name: selectedUser.user_name || "",
+        user_email: selectedUser.user_email || "",
+        user_type: selectedUser.user_type || "regular",
+      });
+
       setOpenEdit(false);
+
+      setAlert({
+        show: true,
+        type: "success",
+        message: "Usuário atualizado com sucesso!",
+      });
+
       fetchUsers();
     } catch (error) {
-      console.error("Erro ao editar:", error);
+      console.log(error.response?.data);
+
+      setAlert({
+        show: true,
+        type: "error",
+        message: error.response?.data?.message || "Erro ao editar usuário",
+      });
     }
   };
 
   const handleDelete = (user) => {
+    if (!user) return;
+
+    console.log("DELETANDO:", user);
+
     setSelectedUser(user);
     setOpenDelete(true);
   };
 
   const confirmDelete = async () => {
+    if (!selectedUser) return;
+
     try {
-      await api.delete(`/users/${selectedUser.id}`);
+      await api.deleteUser(getUserId(selectedUser));
+
       setOpenDelete(false);
+
+      setAlert({
+        show: true,
+        type: "success",
+        message: "Usuário excluído com sucesso!",
+      });
+
       fetchUsers();
     } catch (error) {
-      console.error("Erro ao deletar:", error);
+      console.log(error.response?.data);
+
+      setAlert({
+        show: true,
+        type: "error",
+        message: error.response?.data?.message || "Erro ao deletar usuário",
+      });
     }
   };
+
+  const filteredUsers = users.filter((user) =>
+    user?.user_name?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <LayoutBase>
       <Box sx={{ p: 3 }}>
-
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 1,
-            mb: 3
+            justifyContent: "space-between",
+            gap: 4,
+            mb: 1,
           }}
         >
-          <IconButton onClick={() => navigate(-1)}>
-            <ArrowBackIcon />
-          </IconButton>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <IconButton onClick={() => navigate(-1)}>
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+              Usuários Cadastrados
+            </Typography>
+          </Box>
 
-          <Typography variant="h5">
-            Usuários Cadastrados 
+          <TextField
+            placeholder="Pesquisar usuário..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{
+              flex: 1,
+              maxHeight: "45px",
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "40px",
+                height: "45px",
+                background: "white",
+              },
+            }}
+          />
+        </Box>
+
+        {alert.show && (
+          <CustomAlert
+            type={alert.type}
+            message={alert.message}
+            onClose={() => setAlert({ ...alert, show: false })}
+          />
+        )}
+
+        <Box sx={{ borderTop: "2px solid black", pt: 1, mb: 4, ml: 6 }}>
+          <Typography variant="body2" sx={{ color: "#666" }}>
+            Clique na turma para visualizar os alunos
           </Typography>
         </Box>
 
-        {users.map(user => (
+        {filteredUsers.map((user, index) => (
           <Box
-            key={user.id}
+            key={getUserId(user) || index}
             sx={{
               display: "flex",
               alignItems: "center",
               mb: 2,
-              gap: 2
+              gap: 2,
             }}
           >
-
             <Box
               sx={{
                 flex: 1,
                 background: "#eee",
                 borderRadius: "10px",
                 padding: "12px 20px",
-                border: "1px solid #ccc"
               }}
             >
-              {user.name}
+              {user.user_name}
             </Box>
 
             <Box
               onClick={() => toggleUserType(user)}
               sx={{
-                width: 80,
-                height: 40,
-                borderRadius: "10px",
-                background: "#ddd",
+                width: 70,
+                height: 35,
+                borderRadius: "20px",
+                background:
+                  user.user_type === "admin" ? "#111" : "#1976d2",
                 display: "flex",
                 alignItems: "center",
-                justifyContent:
-                  user.user_type === "admin" ? "flex-end" : "flex-start",
-                padding: "5px",
+                padding: "4px",
                 cursor: "pointer",
-                border: "1px solid #ccc"
               }}
             >
               <Box
                 sx={{
-                  width: 30,
-                  height: 30,
+                  width: 28,
+                  height: 28,
                   borderRadius: "50%",
-                  background:
-                    user.user_type === "admin" ? "blue" : "black"
+                  background: "white",
+                  transform:
+                    user.user_type === "admin"
+                      ? "translateX(35px)"
+                      : "translateX(0px)",
+                  transition: "transform 0.3s ease",
                 }}
               />
             </Box>
 
-            {/* AÇÕES */}
-            <Box
-              sx={{
-                display: "flex",
-                gap: 1,
-                border: "1px solid #ccc",
-                borderRadius: "10px",
-                padding: "5px"
-              }}
-            >
+            <Box sx={{ display: "flex", gap: 1 }}>
               <IconButton onClick={() => handleEdit(user)}>
                 <Edit sx={{ color: "#c9b037" }} />
               </IconButton>
@@ -172,46 +295,43 @@ function Usuarios() {
                 <Delete sx={{ color: "red" }} />
               </IconButton>
             </Box>
-
           </Box>
         ))}
-
-        {/* MODAL EDIT */}
-        <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
-          <DialogTitle>Editar Usuário</DialogTitle>
-          <DialogContent>
-            <TextField
-              fullWidth
-              value={selectedUser?.name || ""}
-              onChange={(e) =>
-                setSelectedUser({
-                  ...selectedUser,
-                  name: e.target.value
-                })
-              }
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenEdit(false)}>Cancelar</Button>
-            <Button onClick={saveEdit}>Salvar</Button>
-          </DialogActions>
-        </Dialog>
-
-        {/* MODAL DELETE */}
-        <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
-          <DialogTitle>Excluir Usuário</DialogTitle>
-          <DialogContent>
-            Tem certeza que deseja excluir {selectedUser?.name}?
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenDelete(false)}>Cancelar</Button>
-            <Button color="error" onClick={confirmDelete}>
-              Excluir
-            </Button>
-          </DialogActions>
-        </Dialog>
-
       </Box>
+
+      {/* EDIT DIALOG */}
+      <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
+        <DialogTitle>Editar Usuário</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Nome"
+            fullWidth
+            margin="normal"
+            value={selectedUser?.user_name || ""}
+            onChange={(e) =>
+              setSelectedUser({
+                ...selectedUser,
+                user_name: e.target.value,
+              })
+            }
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEdit(false)}>Cancelar</Button>
+          <Button onClick={saveEdit}>Salvar</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* DELETE DIALOG */}
+      <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
+        <DialogTitle>Confirmar exclusão</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => setOpenDelete(false)}>Cancelar</Button>
+          <Button color="error" onClick={confirmDelete}>
+            Deletar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </LayoutBase>
   );
 }

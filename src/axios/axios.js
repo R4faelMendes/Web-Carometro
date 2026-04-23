@@ -13,21 +13,30 @@ api.interceptors.request.use(
     const token = localStorage.getItem("token");
 
     if (token) {
-      config.headers.Authorization = token;
+      config.headers.Authorization = token; 
     }
 
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 const sheets = {
+  // AUTH
   postLogin: (user) => api.post("/auth/login", user),
-  postCadastro: (user) => api.post("/user", user),
+
+  // USERS
   getUsers: () => api.get("/user"),
-  updatePassword: (data) => api.patch("/password/user", data),
+
+  updateUser: (id, data) =>
+    api.patch(`/user/${id}`, data),
+
+  deleteUser: (id) =>
+    api.delete(`/user/${id}`), 
+
+  // PASSWORD
+  updatePassword: (data) =>
+    api.patch("/password/user", data),
 };
 
 export default sheets;

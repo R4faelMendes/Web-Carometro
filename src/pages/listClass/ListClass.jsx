@@ -13,91 +13,118 @@ import {
   Button,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../../axios/axios";
+import CustomAlert from "../../components/customAlert/CustomAlert";
 
 function Usuarios() {
   const navigate = useNavigate();
+  const { course_id } = useParams();
 
-  const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState("");
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [classes, setClasses] = useState([]);
+  const [selectedClass, setSelectedClass] = useState(null);
 
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
 
-  const fetchUsers = async () => {
+  const [search, setSearch] = useState("");
+
+  const [alert, setAlert] = useState({
+    show: false,
+    type: "",
+    message: "",
+  });
+
+  const fetchClasses = async () => {
     try {
-      const response = await api.get("/users");
-      setUsers(response.data);
+      const response = await api.get(`/class/${course_id}`);
+      setClasses(response.data);
     } catch (error) {
-      console.error("Erro ao buscar usuários:", error);
+      setAlert({
+        show: true,
+        type: "error",
+        message: "Erro ao buscar turmas",
+      });
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchClasses();
   }, []);
 
-  const toggleUserType = async (user) => {
-    try {
-      const newType = user.user_type === "admin" ? "regular" : "admin";
+  const getClassId = (cls) => cls.class_id || cls.id;
 
-      await api.put(`/users/${user.id}`, {
-        ...user,
-        user_type: newType,
-      });
-
-      fetchUsers();
-    } catch (error) {
-      console.error("Erro ao atualizar user_type:", error);
-    }
-  };
-
-  const handleEdit = (user) => {
-    setSelectedUser(user);
+  const handleEdit = (cls) => {
+    setSelectedClass(cls);
     setOpenEdit(true);
   };
 
   const saveEdit = async () => {
     try {
-      await api.put(`/users/${selectedUser.id}`, selectedUser);
+      await api.patch(`/class/${getClassId(selectedClass)}`, {
+        class_name: selectedClass.class_name,
+      });
+
       setOpenEdit(false);
-      fetchUsers();
+
+      setAlert({
+        show: true,
+        type: "success",
+        message: "Turma atualizada com sucesso!",
+      });
+
+      fetchClasses();
     } catch (error) {
-      console.error("Erro ao editar:", error);
+      setAlert({
+        show: true,
+        type: "error",
+        message: "Erro ao editar turma",
+      });
     }
   };
 
-  const handleDelete = (user) => {
-    setSelectedUser(user);
+  const handleDelete = (cls) => {
+    setSelectedClass(cls);
     setOpenDelete(true);
   };
 
   const confirmDelete = async () => {
     try {
-      await api.delete(`/users/${selectedUser.id}`);
+      await api.delete(`/class/${getClassId(selectedClass)}`);
+
       setOpenDelete(false);
-      fetchUsers();
+
+      setAlert({
+        show: true,
+        type: "success",
+        message: "Turma excluída com sucesso!",
+      });
+
+      fetchClasses();
     } catch (error) {
-      console.error("Erro ao deletar:", error);
+      setAlert({
+        show: true,
+        type: "error",
+        message: "Erro ao deletar turma",
+      });
     }
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filteredClasses = Array.isArray(classes)
+    ? classes.filter((cls) =>
+        cls.class_name?.toLowerCase().includes(search.toLowerCase())
+      )
+    : [];
 
   return (
     <LayoutBase>
       <Box sx={{ p: 3 }}>
-        {/* HEADER CONTAINER */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: 4,
+            gap: 2,
             mb: 1,
           }}
         >
@@ -105,13 +132,13 @@ function Usuarios() {
             <IconButton onClick={() => navigate(-1)}>
               <ArrowBackIcon />
             </IconButton>
-            <Typography variant="h5" sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
+            <Typography variant="h5" sx={{ fontWeight: "bold" }}>
               Turmas Cadastradas
             </Typography>
           </Box>
 
           <TextField
-            placeholder="Pesquisar usuário..."
+            placeholder="Pesquisar turma..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             sx={{
@@ -121,39 +148,40 @@ function Usuarios() {
                 borderRadius: "40px",
                 height: "45px",
                 background: "white",
-                "& fieldset": {
-                  borderWidth: "2px",
-                  borderColor: "black",
-                },
-                "&:hover fieldset": {
-                  borderColor: "black",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "black",
-                },
               },
             }}
           />
+
+          <Button
+            variant="contained"
+            onClick={() => navigate("/criar-sala")}
+            sx={{
+              height: "45px",
+              borderRadius: "20px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Adicionar salas
+          </Button>
         </Box>
 
-        {/* TEXTO DE INSTRUÇÃO COM LINHA PRETA ACIMA */}
-        <Box
-          sx={{
-            borderTop: "2px solid black", // Trocado de borderBottom para borderTop
-            pt: 1, // Trocado de pb (padding-bottom) para pt (padding-top)
-            mb: 4,
-            ml: 6, // Alinhado com o início do texto após o ícone de voltar
-          }}
-        >
+        {alert.show && (
+          <CustomAlert
+            type={alert.type}
+            message={alert.message}
+            onClose={() => setAlert({ ...alert, show: false })}
+          />
+        )}
+
+        <Box sx={{ borderTop: "2px solid black", pt: 1, mb: 4, ml: 6 }}>
           <Typography variant="body2" sx={{ color: "#666" }}>
             Clique na turma para visualizar os alunos
           </Typography>
         </Box>
 
-        {/* LISTA DE USUÁRIOS */}
-        {filteredUsers.map((user) => (
+        {filteredClasses.map((cls, index) => (
           <Box
-            key={user.id}
+            key={`${cls.class_id || cls.id}-${index}`}
             sx={{
               display: "flex",
               alignItems: "center",
@@ -167,72 +195,36 @@ function Usuarios() {
                 background: "#eee",
                 borderRadius: "10px",
                 padding: "12px 20px",
-                border: "1px solid #ccc",
-              }}
-            >
-              {user.name}
-            </Box>
-
-            {/* TOGGLE */}
-            <Box
-              onClick={() => toggleUserType(user)}
-              sx={{
-                width: 80,
-                height: 40,
-                borderRadius: "10px",
-                background: "#ddd",
-                display: "flex",
-                alignItems: "center",
-                justifyContent:
-                  user.user_type === "admin" ? "flex-end" : "flex-start",
-                padding: "5px",
                 cursor: "pointer",
-                border: "1px solid #ccc",
               }}
+              onClick={() => navigate(`/alunos/${getClassId(cls)}`)}
             >
-              <Box
-                sx={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: "50%",
-                  background: user.user_type === "admin" ? "blue" : "black",
-                }}
-              />
+              {cls.class_name}
             </Box>
 
-            {/* AÇÕES */}
-            <Box
-              sx={{
-                display: "flex",
-                gap: 1,
-                border: "1px solid #ccc",
-                borderRadius: "10px",
-                padding: "5px",
-              }}
-            >
-              <IconButton onClick={() => handleEdit(user)}>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <IconButton onClick={() => handleEdit(cls)}>
                 <Edit sx={{ color: "#c9b037" }} />
               </IconButton>
 
-              <IconButton onClick={() => handleDelete(user)}>
+              <IconButton onClick={() => handleDelete(cls)}>
                 <Delete sx={{ color: "red" }} />
               </IconButton>
             </Box>
           </Box>
         ))}
 
-        {/* MODAIS (Mantidos conforme original) */}
         <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
-          <DialogTitle>Editar Usuário</DialogTitle>
+          <DialogTitle>Editar Turma</DialogTitle>
           <DialogContent>
             <TextField
               fullWidth
               margin="dense"
-              value={selectedUser?.name || ""}
+              value={selectedClass?.class_name || ""}
               onChange={(e) =>
-                setSelectedUser({
-                  ...selectedUser,
-                  name: e.target.value,
+                setSelectedClass({
+                  ...selectedClass,
+                  class_name: e.target.value,
                 })
               }
             />
@@ -244,9 +236,9 @@ function Usuarios() {
         </Dialog>
 
         <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
-          <DialogTitle>Excluir Usuário</DialogTitle>
+          <DialogTitle>Excluir Turma</DialogTitle>
           <DialogContent>
-            Tem certeza que deseja excluir {selectedUser?.name}?
+            Tem certeza que deseja excluir {selectedClass?.class_name}?
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpenDelete(false)}>Cancelar</Button>
