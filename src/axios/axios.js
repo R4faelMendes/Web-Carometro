@@ -28,6 +28,8 @@ const sheets = {
   // USERS
   getUsers: () => api.get("/user"),
 
+  postCadastro: (user) => api.post("/user", user),
+
   updateUser: (id, data) =>
     api.patch(`/user/${id}`, data),
 
