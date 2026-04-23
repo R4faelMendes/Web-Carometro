@@ -87,7 +87,6 @@ function Register() {
           CADASTRO
         </Typography>
 
-        {/* 🔥 ALERTA */}
         {alert.show && (
           <CustomAlert type={alert.type} message={alert.message} />
         )}

@@ -40,7 +40,7 @@ function Login() {
 
   const [passwordData, setPasswordData] = useState({
     password: "",
-    newPassword: "",
+    user_password: "",
   });
 
   const onChange = (event) => {
@@ -64,7 +64,7 @@ function Login() {
         JSON.stringify({
           name: apiUser.user_name,
           user_type: apiUser.user_type,
-        })
+        }),
       );
 
       if (apiUser.first_login) {
@@ -75,8 +75,7 @@ function Login() {
       setAlert({
         show: true,
         type: "success",
-        message:
-          response.data.message || "Login realizado com sucesso!",
+        message: response.data.message || "Login realizado com sucesso!",
       });
 
       setTimeout(() => {
@@ -86,17 +85,16 @@ function Login() {
       setAlert({
         show: true,
         type: "error",
-        message:
-          error.response?.data?.message || "Erro ao fazer login",
+        message: error.response?.data?.message || "Erro ao fazer login",
       });
     }
   };
 
   const handleChangePassword = async () => {
     try {
-      await api.patch("/password/user", {
+      await api.updatePassword({
+        user_password: passwordData.user_password,
         password: passwordData.password,
-        newPassword: passwordData.newPassword,
       });
 
       setOpenChangePassword(false);
@@ -114,9 +112,7 @@ function Login() {
       setAlert({
         show: true,
         type: "error",
-        message:
-          error.response?.data?.message ||
-          "Erro ao atualizar senha",
+        message: error.response?.data?.message || "Erro ao atualizar senha",
       });
     }
   };
@@ -230,15 +226,9 @@ function Login() {
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
-                    onClick={() =>
-                      setShowModalPassword(!showModalPassword)
-                    }
+                    onClick={() => setShowModalPassword(!showModalPassword)}
                   >
-                    {showModalPassword ? (
-                      <VisibilityOff />
-                    ) : (
-                      <Visibility />
-                    )}
+                    {showModalPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               ),
@@ -253,7 +243,7 @@ function Login() {
             onChange={(e) =>
               setPasswordData({
                 ...passwordData,
-                newPassword: e.target.value,
+                user_password: e.target.value,
               })
             }
             sx={{
@@ -270,11 +260,7 @@ function Login() {
                       setShowModalNewPassword(!showModalNewPassword)
                     }
                   >
-                    {showModalNewPassword ? (
-                      <VisibilityOff />
-                    ) : (
-                      <Visibility />
-                    )}
+                    {showModalNewPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               ),
@@ -283,9 +269,7 @@ function Login() {
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleChangePassword}>
-            Atualizar senha
-          </Button>
+          <Button onClick={handleChangePassword}>Atualizar senha</Button>
         </DialogActions>
       </Dialog>
     </Container>
