@@ -8,6 +8,8 @@ import { CssBaseline } from "@mui/material";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/listUsers/ListUsers";
 import Turmas from "./pages/listClass/ListClass";
+import RegisterCourse from "./pages/registerCourse/RegisterCourse"; 
+
 
 function App() {
   return (
@@ -15,45 +17,58 @@ function App() {
       <CssBaseline />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Login />} />
-<Route
-  path="/menu"
-  element={
-    <ProtectedRoute>
-      <Menu />
-    </ProtectedRoute>
-  }
-/>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
 
-<Route
-  path="/register"
-  element={
-    <ProtectedRoute>
-      <Register />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/menu"
+            element={
+              <ProtectedRoute>
+                <Menu />
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/listusers"
-  element={
-    <ProtectedRoute>
-      <Dashboard />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/register"
+            element={
+              <ProtectedRoute>
+                <Register />
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/listclass"
-  element={
-    <ProtectedRoute>
-      <Turmas />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/listusers"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/listclass"
+            element={
+              <ProtectedRoute>
+                <Turmas />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/registercourses"
+            element={
+              <ProtectedRoute>
+                <RegisterCourse />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
+
+
     </div>
+
   );
 }
 

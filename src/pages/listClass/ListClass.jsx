@@ -19,7 +19,7 @@ import CustomAlert from "../../components/customAlert/CustomAlert";
 
 function Usuarios() {
   const navigate = useNavigate();
-  const { course_id } = useParams();
+  const { course_id } = useParams(); // (mantido caso vá usar depois)
 
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
@@ -37,8 +37,21 @@ function Usuarios() {
 
   const fetchClasses = async () => {
     try {
-      const response = await api.get(`/class/${course_id}`);
-      setClasses(response.data);
+      const response = await api.getClass();
+      console.log("Resposta:", response.data);
+
+      const rawClass = Array.isArray(response.data)
+        ? response.data
+        : response.data.data || [];
+
+      const formattedClass = rawClass.map((cls) => ({
+        class_id: cls.class_id ?? cls.id ?? null,
+        class_name: cls.class_name ?? cls.name ?? "Sem nome",
+      }));
+
+      // ✅ AGORA SALVA NO STATE
+      setClasses(formattedClass);
+
     } catch (error) {
       setAlert({
         show: true,
@@ -52,7 +65,7 @@ function Usuarios() {
     fetchClasses();
   }, []);
 
-  const getClassId = (cls) => cls.class_id || cls.id;
+  const getClassId = (cls) => cls?.class_id || cls?.id;
 
   const handleEdit = (cls) => {
     setSelectedClass(cls);
@@ -60,6 +73,8 @@ function Usuarios() {
   };
 
   const saveEdit = async () => {
+    if (!selectedClass) return;
+
     try {
       await api.patch(`/class/${getClassId(selectedClass)}`, {
         class_name: selectedClass.class_name,
@@ -89,6 +104,8 @@ function Usuarios() {
   };
 
   const confirmDelete = async () => {
+    if (!selectedClass) return;
+
     try {
       await api.delete(`/class/${getClassId(selectedClass)}`);
 
@@ -154,14 +171,14 @@ function Usuarios() {
 
           <Button
             variant="contained"
-            onClick={() => navigate("/criar-sala")}
+            onClick={() => navigate("/registercourses")}
             sx={{
               height: "45px",
               borderRadius: "20px",
               whiteSpace: "nowrap",
             }}
           >
-            Adicionar salas
+            Adicionar sala
           </Button>
         </Box>
 
@@ -214,6 +231,7 @@ function Usuarios() {
           </Box>
         ))}
 
+        {/* EDITAR */}
         <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
           <DialogTitle>Editar Turma</DialogTitle>
           <DialogContent>
@@ -235,6 +253,7 @@ function Usuarios() {
           </DialogActions>
         </Dialog>
 
+        {/* DELETAR */}
         <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
           <DialogTitle>Excluir Turma</DialogTitle>
           <DialogContent>

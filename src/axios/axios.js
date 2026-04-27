@@ -13,7 +13,7 @@ api.interceptors.request.use(
     const token = localStorage.getItem("token");
 
     if (token) {
-      config.headers.Authorization = token; 
+      config.headers.Authorization = token;
     }
 
     return config;
@@ -27,18 +27,21 @@ const sheets = {
 
   // USERS
   getUsers: () => api.get("/user"),
-
   postCadastro: (user) => api.post("/user", user),
-
-  updateUser: (id, data) =>
-    api.patch(`/user/${id}`, data),
-
-  deleteUser: (id) =>
-    api.delete(`/user/${id}`), 
+  updateUser: (id, data) => api.patch(`/user/${id}`, data),
+  deleteUser: (id) => api.delete(`/user/${id}`),
 
   // PASSWORD
-  updatePassword: (data) =>
-    api.patch("/password/user", data),
+  updatePassword: (data) => api.patch("/password/user", data),
+
+  // COURSE
+  createCourse: (data) => api.post("/course", data),
+  assignUsersToCourse: (course_id, user_ids) =>
+    api.post(`/course/${course_id}/assing-users`, { user_ids }),
+  getCourses: () => api.get("/course/all"),
+
+  // CLASS
+  createClass: (data) => api.post("/class", data),
 };
 
 export default sheets;
