@@ -47,10 +47,18 @@ const apiService = {
   updateClass: (id, data) => api.patch(`/class/${id}`, data), // Back-end usa PATCH
   deleteClass: (id) => api.delete(`/class/${id}`),
   getAllClasses: () => api.get("/class/all"),
-  
+
   // ALUNOS
   getStudentsByClass: (classId) => api.get(`/student/${classId}`),
   postStudent: (data) => api.post("/student", data),
+
+  // INCIDENTS
+  getAllIncidents: () => api.get("/incident"),
+  getIncidentsByStudent: (studentId) => api.get(`/incident/${studentId}`),
+  createIncident: (data) => api.post("/incident", data),
+  updateIncident: (id, data) => api.patch(`/incident/${id}`, data),
+  deleteIncident: (id) => api.delete(`/incident/${id}`),
+
 };
 
 export default apiService;

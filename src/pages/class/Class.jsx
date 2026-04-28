@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  Box, Typography, IconButton, TextField, Button, Grid, Card, Avatar, CircularProgress
+  Box, Typography, IconButton, TextField, Button, CircularProgress, Avatar
 } from "@mui/material";
 import { ArrowBack as ArrowBackIcon, Search as SearchIcon, Add as AddIcon } from "@mui/icons-material";
 
@@ -11,33 +11,27 @@ import CustomAlert from "../../components/customAlert/CustomAlert";
 
 function StudentsList() {
   const navigate = useNavigate();
-  const { classId } = useParams(); 
+  const { classId } = useParams();
 
-  // 1. DADOS DO USUÁRIO E LÓGICA DE PERMISSÃO
   const user = JSON.parse(localStorage.getItem("user"));
-  const professorName = user?.name || "Professor";
-  
-  // Verifica se o tipo de usuário é admin (independente de maiúsculas/minúsculas)
   const isAdmin = user?.user_type?.toLowerCase() === "admin";
 
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [alert, setAlert] = useState({ show: false, type: "", message: "" });
-  
-  const [classInfo, setClassInfo] = useState({ 
-    class_name: "...", 
-    course_name: "Carregando curso" 
+
+  const [classInfo, setClassInfo] = useState({
+    class_name: "...",
+    course_name: "Carregando curso"
   });
 
   const fetchStudents = useCallback(async () => {
-    if (!classId) return;
-
     try {
       setLoading(true);
       const response = await api.getStudentsByClass(classId);
-      const data = response.data?.data || response.data || [];
-      
+      const data = response.data?.data || [];
+
       setStudents(data);
 
       if (data.length > 0) {
@@ -47,8 +41,7 @@ function StudentsList() {
         });
       }
     } catch (error) {
-      console.error("Erro ao buscar alunos:", error);
-      setAlert({ show: true, type: "error", message: "Erro ao carregar dados." });
+      setAlert({ show: true, type: "error", message: "Erro ao carregar alunos." });
     } finally {
       setLoading(false);
     }
@@ -65,101 +58,113 @@ function StudentsList() {
   return (
     <LayoutBase>
       <Box sx={{ p: 3 }}>
-        {/* Cabeçalho */}
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 4 }}>
+
+        {/* HEADER IGUAL TURMAS */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 4, mb: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconButton onClick={() => navigate("/menu")}>
-              <ArrowBackIcon sx={{ fontSize: 35 }} />
+            <IconButton onClick={() => navigate(-1)}>
+              <ArrowBackIcon />
             </IconButton>
-            <Box>
-              <Typography variant="h5" sx={{ fontWeight: "bold", textDecoration: 'underline' }}>
-                {classInfo.course_name} - {classInfo.class_name}
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                Professor: <strong>{professorName}</strong>
-              </Typography>
-            </Box>
+            <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+              {classInfo.class_name} - {classInfo.course_name}
+            </Typography>
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <TextField
-              placeholder="PESQUISAR..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              InputProps={{
-                startAdornment: <SearchIcon sx={{ color: "gray", mr: 1 }} />,
-              }}
-              sx={{
-                width: "250px",
-                "& .MuiOutlinedInput-root": { borderRadius: "40px", height: "45px", background: "white" },
-              }}
-            />
-            
-            {/* 3. BOTÃO ADICIONAR ALUNO - APARECE APENAS SE FOR ADMIN */}
-            {isAdmin && (
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => navigate(`/registerstudent/${classId}`)}
-                sx={{
-                  backgroundColor: "#2957A4",
-                  borderRadius: "10px",
-                  height: "45px",
-                  textTransform: 'none',
-                  fontWeight: 'bold',
-                  "&:hover": { backgroundColor: "#1e3f7a" }
-                }}
-              >
-                Adicionar Aluno
-              </Button>
-            )}
-          </Box>
+          <TextField
+            placeholder="Pesquisar aluno..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{
+              flex: 1,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "40px",
+                height: "45px",
+                background: "white"
+              }
+            }}
+            InputProps={{
+              startAdornment: <SearchIcon sx={{ color: "gray", mr: 1 }} />
+            }}
+          />
+
+          {isAdmin && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => navigate(`/registerstudent/${classId}`)}
+            >
+              Adicionar
+            </Button>
+          )}
+        </Box>
+
+        {/* LINHA + TEXTO IGUAL TURMAS */}
+        <Box sx={{ borderTop: "2px solid black", pt: 1, mb: 4, ml: 6 }}>
+          <Typography variant="body2" sx={{ color: "#666" }}>
+            Clique em um aluno para visualizar os detalhes
+          </Typography>
         </Box>
 
         {alert.show && (
-          <CustomAlert type={alert.type} message={alert.message} onClose={() => setAlert({ ...alert, show: false })} />
+          <CustomAlert
+            type={alert.type}
+            message={alert.message}
+            onClose={() => setAlert({ ...alert, show: false })}
+          />
         )}
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}><CircularProgress /></Box>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+            <CircularProgress />
+          </Box>
         ) : (
-          <Grid container spacing={3}>
-            {filteredStudents.map((student) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={student.student_id || student.id}>
-                <Card 
-                  onClick={() => navigate(`/student-details/${student.student_id || student.id}`)}
-                  sx={{ 
-                    backgroundColor: "#2957A4", borderRadius: "15px", p: 2,
-                    display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    cursor: 'pointer', '&:hover': { transform: 'scale(1.02)', transition: '0.2s' }
-                  }}
-                >
-                  <Box sx={{ 
-                    width: '100%', aspectRatio: '1/1', backgroundColor: 'white', 
-                    borderRadius: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 1 
-                  }}>
-                    <Avatar
-                      src={student.photo} 
-                      variant="square"
-                      sx={{ width: '90%', height: '90%', borderRadius: '5px' }}
-                    />
-                  </Box>
-                  <Box sx={{ width: '100%', backgroundColor: '#001A4D', py: 0.5, borderRadius: '5px', textAlign: 'center' }}>
-                    <Typography sx={{ color: 'white', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                      {student.name}
-                    </Typography>
-                  </Box>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+          filteredStudents.map((student, index) => (
+            <Box
+              key={student.student_id || index}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                mb: 2,
+                gap: 2
+              }}
+            >
+              {/* CARD CINZA IGUAL TURMAS */}
+              <Box
+                sx={{
+                  flex: 1,
+                  background: "#eee",
+                  borderRadius: "10px",
+                  padding: "10px 15px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  cursor: "pointer",
+                  "&:hover": {
+                    background: "#e0e0e0"
+                  }
+                }}
+                onClick={() =>
+                  navigate(`/student-details/${student.student_id || student.id}`)
+                }
+              >
+                <Avatar
+                  src={student.photo}
+                  sx={{ width: 40, height: 40 }}
+                />
+
+                <Typography sx={{ fontWeight: 500 }}>
+                  {student.name}
+                </Typography>
+              </Box>
+            </Box>
+          ))
         )}
 
         {!loading && filteredStudents.length === 0 && (
-          <Typography sx={{ textAlign: 'center', mt: 5, color: 'gray' }}>
-            {isAdmin 
-              ? 'Nenhum aluno encontrado nesta sala. Clique em "Adicionar Aluno" para começar.'
-              : 'Nenhum aluno encontrado nesta sala.'}
+          <Typography sx={{ textAlign: "center", mt: 5, color: "gray" }}>
+            {isAdmin
+              ? 'Nenhum aluno encontrado. Clique em "Adicionar".'
+              : "Nenhum aluno encontrado."}
           </Typography>
         )}
       </Box>

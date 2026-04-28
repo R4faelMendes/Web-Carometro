@@ -97,7 +97,7 @@ function Menu() {
                   <Button component={Link} to="/listclass" sx={btnStyle}>
                     Listar Turmas
                   </Button>
-                  <Button component={Link} to="/ocorrencias" sx={btnStyle}>
+                  <Button component={Link} to="/incidents" sx={btnStyle}>
                     Histórico de Ocorrências
                   </Button>
                   <Button component={Link} to="/register" sx={btnStyle}>

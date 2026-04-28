@@ -10,7 +10,7 @@ import LayoutBase from "../../components/layoutBase/LayoutBase";
 import api from "../../axios/axios";
 import CustomAlert from "../../components/customAlert/CustomAlert";
 
-function Turmas() {
+function ListClass() {
   const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
   const [allCourses, setAllCourses] = useState([]); // Guardar todos os cursos para achar o ID
@@ -206,4 +206,4 @@ function Turmas() {
   );
 }
 
-export default Turmas;
+export default ListClass;

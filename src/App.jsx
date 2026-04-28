@@ -7,10 +7,11 @@ import Menu from "./pages/menu/Menu";
 import { CssBaseline } from "@mui/material";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/listUsers/ListUsers";
-import Turmas from "./pages/listClass/ListClass";
+import ListClass from "./pages/listClass/ListClass";
 import RegisterCourse from "./pages/registerCourse/RegisterCourse";
 import StudentsList from "./pages/class/Class";
 import RegisterStudent from "./pages/registerStudents/RegisterStudents";
+import Incidents from "./pages/incidents/Incidents";
 
 function App() {
   return (
@@ -52,7 +53,7 @@ function App() {
             path="/listclass"
             element={
               <ProtectedRoute>
-                <Turmas />
+                <ListClass />
               </ProtectedRoute>
             }
           />
@@ -64,14 +65,32 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/class/:classId" element={<ProtectedRoute><StudentsList /></ProtectedRoute>} />
-          <Route path="/registerstudent/:classId" element={<ProtectedRoute><RegisterStudent /></ProtectedRoute>} />
+          <Route 
+            path="/class/:classId" 
+            element={
+              <ProtectedRoute>
+                  <StudentsList />
+              </ProtectedRoute>} 
+            />
+          <Route 
+            path="/registerstudent/:classId" 
+            element={
+              <ProtectedRoute>
+                <RegisterStudent />
+              </ProtectedRoute>} 
+            />
+          <Route 
+            path="/incidents"
+            element={
+              <ProtectedRoute>
+                <Incidents />
+              </ProtectedRoute>} 
+            />
         </Routes>
       </BrowserRouter>
 
 
     </div>
-
   );
 }
 
