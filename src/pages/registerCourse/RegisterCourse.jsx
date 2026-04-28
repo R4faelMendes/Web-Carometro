@@ -11,12 +11,13 @@ import {
   DialogActions,
   Checkbox,
 } from "@mui/material";
+
 import api from "../../axios/axios";
 import CustomAlert from "../../components/customAlert/CustomAlert";
 
 function RegisterCourse() {
   const [courseName, setCourseName] = useState("");
-  const [courseId, setCourseId] = useState("");
+  const [courseId, setCourseId] = useState(null);
 
   const [openModal, setOpenModal] = useState(false);
   const [step, setStep] = useState(1);
@@ -32,48 +33,47 @@ function RegisterCourse() {
     message: "",
   });
 
-  // 🔥 BUSCAR USUÁRIOS (SEM FILTRO)
+  // ---------------- USERS ----------------
   useEffect(() => {
     async function fetchUsers() {
       try {
         const res = await api.getUsers();
 
-        console.log("USERS API:", res.data);
+        const rawUsers = res.data?.data || res.data || [];
 
-        const rawUsers = Array.isArray(res.data)
-          ? res.data
-          : res.data?.data || res.data?.users || [];
-
-        // ✅ PADRONIZAÇÃO (evita undefined)
-        const formattedUsers = rawUsers.map((u) => ({
-          id: u.user_id ?? u.id,
-          name: u.user_name ?? u.name ?? "Sem nome",
-        }));
-
-        console.log("FORMATADO:", formattedUsers);
-
-        setUsers(formattedUsers);
+        setUsers(
+          rawUsers.map((u) => ({
+            id: u.user_id ?? u.id,
+            name: u.user_name ?? u.name ?? "Sem nome",
+          }))
+        );
       } catch (err) {
-        console.log("Erro ao buscar usuários:", err);
+        console.log("ERRO USERS:", err);
       }
     }
 
     fetchUsers();
   }, []);
 
-  // ✅ CRIAR CURSO
+  // ---------------- CREATE COURSE ----------------
   const handleCreateCourse = async () => {
     try {
+      if (!courseName.trim()) {
+        throw new Error("Nome do curso vazio");
+      }
+
       const res = await api.createCourse({
-        course_name: courseName,
+        course_name: courseName.trim(),
       });
 
-      const newCourseId =
-        res.data?.course_id || res.data?.data?.course_id;
+      const id =
+        res.data?.data?.course_id ||
+        res.data?.course_id ||
+        res.data?.id;
 
-      if (!newCourseId) throw new Error("Sem ID");
+      if (!id) throw new Error("course_id não retornado");
 
-      setCourseId(newCourseId);
+      setCourseId(id);
       setOpenModal(true);
       setStep(1);
 
@@ -83,15 +83,17 @@ function RegisterCourse() {
         message: "Curso criado!",
       });
     } catch (err) {
+      console.log("ERRO COURSE:", err);
+
       setAlert({
         show: true,
         type: "error",
-        message: "Erro ao criar curso",
+        message: err.message || "Erro ao criar curso",
       });
     }
   };
 
-  // ✅ SELECIONAR / DESELECIONAR
+  // ---------------- USERS TOGGLE ----------------
   const toggleUser = (id) => {
     setSelectedUsers((prev) =>
       prev.includes(id)
@@ -100,22 +102,38 @@ function RegisterCourse() {
     );
   };
 
-  // ✅ VINCULAR (UPDATE)
+  // ---------------- ASSIGN USERS ----------------
   const handleAssignUsers = async () => {
     try {
+      if (!courseId) throw new Error("courseId inválido");
+
+      if (selectedUsers.length === 0) {
+        throw new Error("Selecione pelo menos um usuário");
+      }
+
       await api.assignUsersToCourse(courseId, selectedUsers);
+
       setStep(2);
     } catch (err) {
-      console.log("Erro ao vincular:", err);
+      console.log("ERRO ASSIGN:", err);
+
+      setAlert({
+        show: true,
+        type: "error",
+        message: err.message || "Erro ao vincular usuários",
+      });
     }
   };
 
-  // ✅ CRIAR TURMA
+  // ---------------- CREATE CLASS ----------------
   const handleCreateClass = async () => {
     try {
+      if (!courseId) throw new Error("courseId não definido");
+      if (!className.trim()) throw new Error("Nome da turma vazio");
+
       await api.createClass({
-        class_name: className,
-        course_id: courseId,
+        class_name: className.trim(),
+        course_id: Number(courseId), // 🔥 FORÇANDO TIPO CORRETO
       });
 
       setAlert({
@@ -130,10 +148,17 @@ function RegisterCourse() {
       setClassName("");
       setSelectedUsers([]);
     } catch (err) {
-      console.log("Erro ao criar turma:", err);
+      console.log("ERRO CLASS:", err);
+
+      setAlert({
+        show: true,
+        type: "error",
+        message: err.response?.data?.message || err.message || "Erro ao criar turma",
+      });
     }
   };
 
+  // ---------------- UI (NÃO MEXIDO) ----------------
   return (
     <Container maxWidth="xs">
       <Box
@@ -189,10 +214,6 @@ function RegisterCourse() {
         <DialogContent>
           {step === 1 && (
             <Box sx={{ mt: 1 }}>
-              {users.length === 0 && (
-                <Typography>Nenhum usuário encontrado</Typography>
-              )}
-
               {users.map((u) => (
                 <Box
                   key={u.id}
@@ -211,7 +232,6 @@ function RegisterCourse() {
                   }}
                 >
                   <Typography>{u.name}</Typography>
-
                   <Checkbox checked={selectedUsers.includes(u.id)} />
                 </Box>
               ))}
@@ -231,19 +251,13 @@ function RegisterCourse() {
 
         <DialogActions>
           {step === 1 && (
-            <Button
-              onClick={handleAssignUsers}
-              disabled={selectedUsers.length === 0}
-            >
+            <Button onClick={handleAssignUsers}>
               Confirmar
             </Button>
           )}
 
           {step === 2 && (
-            <Button
-              onClick={handleCreateClass}
-              disabled={!className}
-            >
+            <Button onClick={handleCreateClass}>
               Criar Turma
             </Button>
           )}

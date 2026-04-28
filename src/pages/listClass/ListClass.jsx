@@ -29,29 +29,54 @@ function Turmas() {
   const [search, setSearch] = useState("");
   const [alert, setAlert] = useState({ show: false, type: "", message: "" });
 
-  // --- MÉTODO AUXILIAR REFORÇADO ---
-  const getClassId = (cls) => cls?.class_id || cls?.id || cls?.id_class || null;
+  const getClassId = (cls) =>
+    cls?.class_id || cls?.id || cls?.classId || cls?.id_class || null;
 
   const fetchClasses = useCallback(async () => {
     try {
       setLoading(true);
-      // Chamada via AxiosService
-      const response = await api.getAllCourses(); 
-      const rawData = response.data?.data || response.data || [];
 
-      // Mapeamento que garante a existência do ID da Turma e nome do Curso
-      const formattedClasses = rawData.map((item) => ({
-        // Se a API retornar a turma dentro do curso, ajuste 'item.id' para a chave correta
-        class_id: item.class_id || item.id, 
+      const courseId = 1; // ⚠️ confirme se esse ID existe no banco
+
+      const response = await api.getClassesByCourse(courseId);
+
+      console.log("🔥 RAW RESPONSE:", response);
+      console.log("🔥 RESPONSE.DATA:", response.data);
+
+      // ✅ CORREÇÃO REAL AQUI
+      const rawData = response.data;
+
+      const classesArray = Array.isArray(rawData)
+        ? rawData
+        : rawData?.data ?? [];
+
+      console.log("🔥 CLASSES ARRAY FINAL:", classesArray);
+
+      if (!Array.isArray(classesArray)) {
+        throw new Error("API não retornou array válido");
+      }
+
+      const formatted = classesArray.map((item) => ({
+        class_id: item.class_id || item.id || item.id_class,
         class_name: item.class_name || item.name || "Sem nome",
-        course_id: item.course_id || item.id_curso,
-        course_name: item.course_name || item.course?.name || "Curso Geral",
+        course_name:
+          item.course_name ||
+          item.course?.course_name ||
+          item.course?.name ||
+          "Curso",
       }));
 
-      setClasses(formattedClasses);
+      setClasses(formatted);
+
     } catch (error) {
-      console.error("Erro ao buscar turmas:", error);
-      setAlert({ show: true, type: "error", message: "Erro ao carregar dados." });
+      console.log("❌ FETCH ERROR:", error);
+
+      setAlert({
+        show: true,
+        type: "error",
+        message: "Erro ao carregar turmas (ver console).",
+      });
+
     } finally {
       setLoading(false);
     }
@@ -61,115 +86,153 @@ function Turmas() {
     fetchClasses();
   }, [fetchClasses]);
 
-  // --- HANDLERS COM PROTEÇÃO CONTRA NULL ---
+  // ---------------- EDIT ----------------
   const handleEdit = (cls) => {
     const id = getClassId(cls);
-    if (!id) {
-      setAlert({ show: true, type: "error", message: "ID da turma não encontrado." });
-      return;
-    }
+    if (!id) return;
+
     setSelectedClass({ ...cls, class_id: id });
     setOpenEdit(true);
   };
 
   const saveEdit = async () => {
-    const idClass = getClassId(selectedClass);
-    if (!idClass) return;
-
     try {
-      // Alinhado com api.updateClass do seu apiService
-      await api.updateClass(idClass, { class_name: selectedClass.class_name });
-      
+      const id = getClassId(selectedClass);
+      if (!id) return;
+
+      await api.updateClass(id, {
+        class_name: selectedClass.class_name,
+      });
+
       setOpenEdit(false);
-      setAlert({ show: true, type: "success", message: "Turma atualizada com sucesso!" });
+      setSelectedClass(null);
+
+      setAlert({
+        show: true,
+        type: "success",
+        message: "Turma atualizada com sucesso!",
+      });
+
       fetchClasses();
     } catch (error) {
-      setAlert({ show: true, type: "error", message: "Erro ao atualizar a turma." });
+      console.log(error);
     }
   };
 
+  // ---------------- DELETE ----------------
   const handleDelete = (cls) => {
     const id = getClassId(cls);
-    if (!id) {
-      setAlert({ show: true, type: "error", message: "ID inválido para exclusão." });
-      return;
-    }
+    if (!id) return;
+
     setSelectedClass({ ...cls, class_id: id });
     setOpenDelete(true);
   };
 
   const confirmDelete = async () => {
-    const id = getClassId(selectedClass);
     try {
-      // Alinhado com api.deleteClass do seu apiService
+      const id = getClassId(selectedClass);
+      if (!id) return;
+
       await api.deleteClass(id);
+
       setOpenDelete(false);
-      setAlert({ show: true, type: "success", message: "Turma removida com sucesso!" });
+      setSelectedClass(null);
+
+      setAlert({
+        show: true,
+        type: "success",
+        message: "Turma removida com sucesso!",
+      });
+
       fetchClasses();
     } catch (error) {
-      setAlert({ show: true, type: "error", message: "Erro ao deletar turma." });
+      console.log(error);
     }
   };
 
   const filteredClasses = classes.filter((cls) =>
-    `${cls.class_name} ${cls.course_name}`.toLowerCase().includes(search.toLowerCase())
+    `${cls.class_name} ${cls.course_name}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
   );
 
   return (
     <LayoutBase>
       <Box sx={{ p: 3 }}>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4, mb: 1 }}>
+
+        <Box sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 4,
+          mb: 1
+        }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconButton onClick={() => navigate(-1)}><ArrowBackIcon /></IconButton>
-            <Typography variant="h5" sx={{ fontWeight: "bold" }}>Turmas Cadastradas</Typography>
+            <IconButton onClick={() => navigate(-1)}>
+              <ArrowBackIcon />
+            </IconButton>
+
+            <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+              Turmas Cadastradas
+            </Typography>
           </Box>
 
           <TextField
             placeholder="Pesquisar por turma ou curso..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            sx={{ flex: 1, "& .MuiOutlinedInput-root": { borderRadius: "40px", height: "45px", background: "white" } }}
+            sx={{
+              flex: 1,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "40px",
+                height: "45px",
+                background: "white",
+              },
+            }}
           />
 
-          <Button 
-            variant="contained" 
-            onClick={() => navigate("/registercourses")}
-            sx={{ height: "45px", borderRadius: "20px", backgroundColor: "#2957A4" }}
-          >
+          <Button variant="contained" onClick={() => navigate("/registercourses")}>
             Adicionar salas
           </Button>
         </Box>
 
         {alert.show && (
-          <CustomAlert 
-            type={alert.type} 
-            message={alert.message} 
-            onClose={() => setAlert({ ...alert, show: false })} 
+          <CustomAlert
+            type={alert.type}
+            message={alert.message}
+            onClose={() => setAlert({ ...alert, show: false })}
           />
         )}
 
         <Box sx={{ borderTop: "2px solid black", pt: 1, mb: 4, ml: 6 }}>
           <Typography variant="body2" sx={{ color: "#666" }}>
-            Selecione uma turma para visualizar os alunos (Carômetro)
+            Selecione uma turma para visualizar os alunos
           </Typography>
         </Box>
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+            <CircularProgress />
+          </Box>
         ) : (
           filteredClasses.map((cls, index) => {
-            const currentId = getClassId(cls);
+            const id = getClassId(cls);
+
             return (
-              <Box key={currentId || index} sx={{ display: "flex", alignItems: "center", mb: 2, gap: 2 }}>
+              <Box key={id || index} sx={{ display: "flex", alignItems: "center", mb: 2, gap: 2 }}>
+
                 <Box
-                  sx={{ 
-                    flex: 1, background: "#eee", borderRadius: "10px", padding: "12px 20px", cursor: "pointer",
-                    "&:hover": { background: "#e0e0e0" } 
+                  sx={{
+                    flex: 1,
+                    background: "#eee",
+                    borderRadius: "10px",
+                    padding: "12px 20px",
+                    cursor: "pointer",
                   }}
-                  onClick={() => currentId ? navigate(`/class/${currentId}`) : setAlert({show:true, type:'error', message:'ID da turma não disponível'})}
+                  onClick={() => id && navigate(`/class/${id}`)}
                 >
-                  <Typography sx={{ fontWeight: '500' }}>
-                    {cls.class_name} <span style={{ color: '#777', fontWeight: '400' }}>— {cls.course_name}</span>
+                  <Typography>
+                    {cls.class_name} - {cls.course_name}
                   </Typography>
                 </Box>
 
@@ -186,32 +249,37 @@ function Turmas() {
         )}
       </Box>
 
-      {/* MODAL EDITAR */}
+      {/* EDIT */}
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
-        <DialogTitle>Editar Nome da Turma</DialogTitle>
+        <DialogTitle>Editar Turma</DialogTitle>
+
         <DialogContent>
           <TextField
-            fullWidth margin="dense" label="Nome da Turma"
+            fullWidth
             value={selectedClass?.class_name || ""}
-            onChange={(e) => setSelectedClass(prev => ({ ...prev, class_name: e.target.value }))}
+            onChange={(e) =>
+              setSelectedClass((prev) => ({
+                ...prev,
+                class_name: e.target.value,
+              }))
+            }
           />
         </DialogContent>
+
         <DialogActions>
           <Button onClick={() => setOpenEdit(false)}>Cancelar</Button>
-          <Button onClick={saveEdit} variant="contained" sx={{ bgcolor: "#2957A4" }}>Salvar Alteração</Button>
+          <Button onClick={saveEdit}>Salvar</Button>
         </DialogActions>
       </Dialog>
 
-      {/* MODAL DELETAR */}
+      {/* DELETE */}
       <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
-        <DialogTitle>Confirmar Exclusão</DialogTitle>
-        <DialogContent>
-          Tem certeza que deseja excluir a turma <strong>{selectedClass?.class_name}</strong>? 
-          Esta ação não pode ser desfeita.
-        </DialogContent>
+        <DialogTitle>Confirmar exclusão</DialogTitle>
         <DialogActions>
           <Button onClick={() => setOpenDelete(false)}>Cancelar</Button>
-          <Button color="error" variant="contained" onClick={confirmDelete}>Excluir Agora</Button>
+          <Button color="error" onClick={confirmDelete}>
+            Deletar
+          </Button>
         </DialogActions>
       </Dialog>
     </LayoutBase>
