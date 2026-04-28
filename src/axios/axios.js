@@ -34,21 +34,22 @@ const apiService = {
 
   // COURSE
   createCourse: (data) => api.post("/course", data),
-  assignUsersToCourse: (course_id, user_ids) =>api.post(`/course/${course_id}/assign-users`, { user_ids }),
-  
-  getAllCourses: () => api.get("/course/all"), // Para Admin ver tudo
-  getCourses: () => api.get("/course"),         // Para Usuário ver os seus
+  assignUsersToCourse: (course_id, user_ids) => api.post(`/course/${course_id}/assign-users`, { user_ids }),
+  getAllCourses: () => api.get("/course/all"),
+  getCourses: () => api.get("/course"),
+  updateCourse: (id, data) => api.patch(`/course/${id}`, data), // Rota para atualizar o curso
+
 
   // CLASS (Turmas)
   createClass: (data) => api.post("/class", data),
+  getClassesByUser: () => api.get("/class"), // ROTA CORRETA PARA PEGAR TURMAS DO USUÁRIO
   getClassesByCourse: (courseId) => api.get(`/class/${courseId}`),
-  updateClass: (id, data) => api.put(`/class/${id}`, data),
+  updateClass: (id, data) => api.patch(`/class/${id}`, data), // Back-end usa PATCH
   deleteClass: (id) => api.delete(`/class/${id}`),
-
-  // ALUNOS (Importante para o Carômetro carregar)
-  getStudentsByClass: (classId) => api.get(`/class/${classId}/students`),
-
+  getAllClasses: () => api.get("/class/all"),
   
+  // ALUNOS
+  getStudentsByClass: (classId) => api.get(`/student/${classId}`),
 };
 
 export default apiService;
