@@ -11,17 +11,15 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-
     if (token) {
       config.headers.Authorization = token;
     }
-
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-const sheets = {
+const apiService = {
   // AUTH
   postLogin: (user) => api.post("/auth/login", user),
 
@@ -36,20 +34,21 @@ const sheets = {
 
   // COURSE
   createCourse: (data) => api.post("/course", data),
-  assignUsersToCourse: (course_id, user_ids) =>
-    api.post(`/course/${course_id}/assing-users`, { user_ids }),
-  getCourses: () => api.get("/course/all"),
+  assignUsersToCourse: (course_id, user_ids) =>api.post(`/course/${course_id}/assign-users`, { user_ids }),
+  
+  getAllCourses: () => api.get("/course/all"), // Para Admin ver tudo
+  getCourses: () => api.get("/course"),         // Para Usuário ver os seus
 
-  // CLASS
+  // CLASS (Turmas)
   createClass: (data) => api.post("/class", data),
-  getClassesByCourse: (courseId) =>
-    api.get(`/class/${courseId}`),
+  getClassesByCourse: (courseId) => api.get(`/class/${courseId}`),
+  updateClass: (id, data) => api.put(`/class/${id}`, data),
+  deleteClass: (id) => api.delete(`/class/${id}`),
 
-  updateClass: (id, data) =>
-    api.put(`/class/${id}`, data),
+  // ALUNOS (Importante para o Carômetro carregar)
+  getStudentsByClass: (classId) => api.get(`/class/${classId}/students`),
 
-  deleteClass: (id) =>
-    api.delete(`/class/${id}`),
+  
 };
 
-export default sheets;
+export default apiService;
