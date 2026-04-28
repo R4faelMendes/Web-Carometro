@@ -42,6 +42,14 @@ const sheets = {
 
   // CLASS
   createClass: (data) => api.post("/class", data),
+  getClassesByCourse: (courseId) =>
+    api.get(`/class/${courseId}`),
+
+  updateClass: (id, data) =>
+    api.put(`/class/${id}`, data),
+
+  deleteClass: (id) =>
+    api.delete(`/class/${id}`),
 };
 
 export default sheets;

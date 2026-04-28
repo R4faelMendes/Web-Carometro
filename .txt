@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import LayoutBase from "../../components/layoutBase/LayoutBase";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
@@ -8,7 +8,6 @@ import {
   TextField,
   Dialog,
   DialogTitle,
-  DialogContent,
   DialogActions,
   Button,
 } from "@mui/material";
@@ -34,61 +33,62 @@ function Turmas() {
     message: "",
   });
 
-  const courseId = 1;
+  // ✅ DEFINE UM ID FIXO (ou depois você pode deixar dinâmico)
+  const courseId = 1; // ⚠️ coloque um ID válido do seu banco
 
- const fetchClasses = useCallback(async () => {
-  try {
-    if (!courseId) return;
+  // ✅ BUSCAR TURMAS
+  const fetchClasses = async () => {
+    try {
+      if (!courseId) return; // evita erro
 
-    const response = await api.getClassesByCourse(courseId);
+      const response = await api.getClassesByCourse(courseId);
 
-    console.log("RESPOSTA 👉", response.data);
+      console.log("RESPOSTA TURMAS:", response.data);
 
-    const rawClasses = response.data?.data || response.data || [];
+      const rawClasses = Array.isArray(response.data)
+        ? response.data
+        : response.data?.data || [];
 
-    const formattedClasses = rawClasses.map((cls) => ({
-      class_id: cls.class_id || cls.id,
-      class_name: cls.class_name || cls.name || "Sem nome",
-    }));
+      const formattedClasses = rawClasses.map((cls) => ({
+        class_id: cls.class_id ?? cls.id ?? null,
+        class_name: cls.class_name ?? cls.name ?? "Sem nome",
+      }));
 
-    setClasses(formattedClasses);
-  } catch (error) {
-    console.log("ERRO 👉", error.response || error);
+      console.log("FORMATADAS:", formattedClasses);
 
-    setAlert({
-      show: true,
-      type: "error",
-      message: "Erro ao buscar turmas",
-    });
-  }
-}, [courseId]);
+      setClasses(formattedClasses);
+    } catch (error) {
+      console.log(error.response?.data);
+
+      setAlert({
+        show: true,
+        type: "error",
+        message: "Erro ao buscar turmas",
+      });
+    }
+  };
+
   useEffect(() => {
     fetchClasses();
-  }, [fetchClasses]);
+  }, []);
 
-  const getClassId = (cls) => cls?.class_id || cls?.id || null;
+  const getClassId = (cls) => {
+    if (!cls) return null;
+    return cls.class_id ?? cls.id ?? null;
+  };
 
   const handleEdit = (cls) => {
-    setSelectedClass(cls);
+    setSelectedClass({ ...cls });
     setOpenEdit(true);
   };
 
   const saveEdit = async () => {
     try {
-      if (!selectedClass) return;
-
-      const id = getClassId(selectedClass);
-      if (!id) {
-        console.log("ID inválido 👉", selectedClass);
-        return;
-      }
-
-      await api.put(`/class/${id}`, {
+      await api.updateClass(getClassId(selectedClass), {
         class_name: selectedClass.class_name,
       });
 
       setOpenEdit(false);
-      setSelectedClass(null);
 
       setAlert({
         show: true,
@@ -98,7 +98,8 @@ function Turmas() {
 
       fetchClasses();
     } catch (error) {
-      console.log(error);
+      console.log(error.response?.data);
+
       setAlert({
         show: true,
         type: "error",
@@ -114,18 +115,9 @@ function Turmas() {
 
   const confirmDelete = async () => {
     try {
-      if (!selectedClass) return;
-
-      const id = getClassId(selectedClass);
-      if (!id) {
-        console.log("ID inválido 👉", selectedClass);
-        return;
-      }
-
-      await api.delete(`/class/${id}`);
+      await api.deleteClass(getClassId(selectedClass));
 
       setOpenDelete(false);
-      setSelectedClass(null);
 
       setAlert({
         show: true,
@@ -135,7 +127,8 @@ function Turmas() {
 
       fetchClasses();
     } catch (error) {
-      console.log(error);
+      console.log(error.response?.data);
+
       setAlert({
         show: true,
         type: "error",
@@ -149,7 +142,7 @@ function Turmas() {
   );
 
   return (
-    <LayoutBase>
+<LayoutBase>
       <Box sx={{ p: 3 }}>
         <Box
           sx={{
@@ -175,6 +168,7 @@ function Turmas() {
             onChange={(e) => setSearch(e.target.value)}
             sx={{
               flex: 1,
+              maxHeight: "45px",
               "& .MuiOutlinedInput-root": {
                 borderRadius: "40px",
                 height: "45px",
@@ -183,12 +177,13 @@ function Turmas() {
             }}
           />
 
-          <Button
+            <Button
             variant="contained"
-            onClick={() => navigate("/registercourses")}
+            onClick={() => navigate("/criar-sala")}
             sx={{
               height: "45px",
               borderRadius: "20px",
+              whiteSpace: "nowrap",
             }}
           >
             Adicionar salas
@@ -209,12 +204,6 @@ function Turmas() {
           </Typography>
         </Box>
 
-        {filteredClasses.length === 0 && (
-          <Typography sx={{ ml: 6, color: "#999" }}>
-            Nenhuma turma encontrada
-          </Typography>
-        )}
-
         {filteredClasses.map((cls, index) => (
           <Box
             key={getClassId(cls) || index}
@@ -231,24 +220,20 @@ function Turmas() {
                 background: "#eee",
                 borderRadius: "10px",
                 padding: "12px 20px",
-                cursor: "pointer",
-              }}
-              onClick={() => {
-                const id = getClassId(cls);
-                if (!id) return;
-                navigate(`/class/${id}`);
               }}
             >
               {cls.class_name}
             </Box>
 
-            <IconButton onClick={() => handleEdit(cls)}>
-              <Edit sx={{ color: "#c9b037" }} />
-            </IconButton>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <IconButton onClick={() => handleEdit(cls)}>
+                <Edit sx={{ color: "#c9b037" }} />
+              </IconButton>
 
-            <IconButton onClick={() => handleDelete(cls)}>
-              <Delete sx={{ color: "red" }} />
-            </IconButton>
+              <IconButton onClick={() => handleDelete(cls)}>
+                <Delete sx={{ color: "red" }} />
+              </IconButton>
+            </Box>
           </Box>
         ))}
       </Box>
@@ -256,23 +241,17 @@ function Turmas() {
       {/* EDIT */}
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
         <DialogTitle>Editar Turma</DialogTitle>
-
-        <DialogContent>
+        <DialogActions>
           <TextField
             fullWidth
-            margin="dense"
             value={selectedClass?.class_name || ""}
             onChange={(e) =>
-              setSelectedClass((prev) => ({
-                ...prev,
+              setSelectedClass({
+                ...selectedClass,
                 class_name: e.target.value,
-              }))
+              })
             }
           />
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={() => setOpenEdit(false)}>Cancelar</Button>
           <Button onClick={saveEdit}>Salvar</Button>
         </DialogActions>
       </Dialog>
@@ -280,7 +259,6 @@ function Turmas() {
       {/* DELETE */}
       <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
         <DialogTitle>Confirmar exclusão</DialogTitle>
-
         <DialogActions>
           <Button onClick={() => setOpenDelete(false)}>Cancelar</Button>
           <Button color="error" onClick={confirmDelete}>
