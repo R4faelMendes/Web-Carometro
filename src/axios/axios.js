@@ -50,6 +50,7 @@ const apiService = {
   
   // ALUNOS
   getStudentsByClass: (classId) => api.get(`/student/${classId}`),
+  postStudent: (data) => api.post("/student", data),
 };
 
 export default apiService;

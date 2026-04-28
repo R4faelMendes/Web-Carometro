@@ -8,8 +8,9 @@ import { CssBaseline } from "@mui/material";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/listUsers/ListUsers";
 import Turmas from "./pages/listClass/ListClass";
-import RegisterCourse from "./pages/registerCourse/RegisterCourse"; 
-
+import RegisterCourse from "./pages/registerCourse/RegisterCourse";
+import StudentsList from "./pages/class/Class";
+import RegisterStudent from "./pages/registerStudents/RegisterStudents";
 
 function App() {
   return (
@@ -63,6 +64,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/class/:classId" element={<ProtectedRoute><StudentsList /></ProtectedRoute>} />
+          <Route path="/registerstudent/:classId" element={<ProtectedRoute><RegisterStudent /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
 

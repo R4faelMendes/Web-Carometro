@@ -116,7 +116,7 @@ function Menu() {
                       <Button
                         key={curso.id || curso.course_id}
                         component={Link}
-                        to={`/sala/${curso.id || curso.course_id}`}
+                        to={`/class/${curso.id || curso.course_id}`}
                         sx={btnStyle}
                       >
                         {curso.name || curso.course_name}
