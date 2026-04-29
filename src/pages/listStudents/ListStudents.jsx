@@ -1,9 +1,19 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  Box, Typography, IconButton, TextField, Button, CircularProgress, Avatar
+  Box,
+  Typography,
+  IconButton,
+  TextField,
+  Button,
+  CircularProgress,
+  Avatar,
 } from "@mui/material";
-import { ArrowBack as ArrowBackIcon, Search as SearchIcon, Add as AddIcon } from "@mui/icons-material";
+import {
+  ArrowBack as ArrowBackIcon,
+  Search as SearchIcon,
+  Add as AddIcon,
+} from "@mui/icons-material";
 
 import LayoutBase from "../../components/layoutBase/LayoutBase";
 import api from "../../axios/axios";
@@ -19,29 +29,32 @@ function StudentsList() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [alert, setAlert] = useState({ show: false, type: "", message: "" });
-
-  const [classInfo, setClassInfo] = useState({
-    class_name: "...",
-    course_name: "Carregando curso"
+  const [alert, setAlert] = useState({
+    show: false,
+    type: "",
+    message: "",
   });
 
+  // 🔥 FIXO (SEM BACKEND)
+  const classInfo = {
+    class_name: "Sala de Aula",
+  };
+
+  // 🔥 BUSCAR ALUNOS
   const fetchStudents = useCallback(async () => {
     try {
       setLoading(true);
+
       const response = await api.getStudentsByClass(classId);
       const data = response.data?.data || [];
 
       setStudents(data);
-
-      if (data.length > 0) {
-        setClassInfo({
-          class_name: data[0].class_name,
-          course_name: data[0].course_name
-        });
-      }
     } catch (error) {
-      setAlert({ show: true, type: "error", message: "Erro ao carregar alunos." });
+      setAlert({
+        show: true,
+        type: "error",
+        message: "Erro ao carregar alunos.",
+      });
     } finally {
       setLoading(false);
     }
@@ -51,22 +64,23 @@ function StudentsList() {
     fetchStudents();
   }, [fetchStudents]);
 
+  // 🔍 FILTRO
   const filteredStudents = students.filter((student) =>
-    student.name?.toLowerCase().includes(search.toLowerCase())
+    student.student_name?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <LayoutBase>
       <Box sx={{ p: 3 }}>
-
-        {/* HEADER IGUAL TURMAS */}
+        {/* HEADER */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 4, mb: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <IconButton onClick={() => navigate(-1)}>
               <ArrowBackIcon />
             </IconButton>
+
             <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-              {classInfo.class_name} - {classInfo.course_name}
+              {classInfo.class_name}
             </Typography>
           </Box>
 
@@ -79,11 +93,13 @@ function StudentsList() {
               "& .MuiOutlinedInput-root": {
                 borderRadius: "40px",
                 height: "45px",
-                background: "white"
-              }
+                background: "white",
+              },
             }}
             InputProps={{
-              startAdornment: <SearchIcon sx={{ color: "gray", mr: 1 }} />
+              startAdornment: (
+                <SearchIcon sx={{ color: "gray", mr: 1 }} />
+              ),
             }}
           />
 
@@ -98,7 +114,7 @@ function StudentsList() {
           )}
         </Box>
 
-        {/* LINHA + TEXTO IGUAL TURMAS */}
+        {/* LINHA */}
         <Box sx={{ borderTop: "2px solid black", pt: 1, mb: 4, ml: 6 }}>
           <Typography variant="body2" sx={{ color: "#666" }}>
             Clique em um aluno para visualizar os detalhes
@@ -125,10 +141,9 @@ function StudentsList() {
                 display: "flex",
                 alignItems: "center",
                 mb: 2,
-                gap: 2
+                gap: 2,
               }}
             >
-              {/* CARD CINZA IGUAL TURMAS */}
               <Box
                 sx={{
                   flex: 1,
@@ -140,20 +155,22 @@ function StudentsList() {
                   gap: 2,
                   cursor: "pointer",
                   "&:hover": {
-                    background: "#e0e0e0"
-                  }
+                    background: "#e0e0e0",
+                  },
                 }}
                 onClick={() =>
-                  navigate(`/student-details/${student.student_id || student.id}`)
+                  navigate(`/student/${student.student_id}`)
                 }
               >
                 <Avatar
-                  src={student.photo}
+                  src={student.photo || ""}
                   sx={{ width: 40, height: 40 }}
-                />
+                >
+                  {student.student_name?.[0]}
+                </Avatar>
 
                 <Typography sx={{ fontWeight: 500 }}>
-                  {student.name}
+                  {student.student_name}
                 </Typography>
               </Box>
             </Box>
@@ -161,7 +178,13 @@ function StudentsList() {
         )}
 
         {!loading && filteredStudents.length === 0 && (
-          <Typography sx={{ textAlign: "center", mt: 5, color: "gray" }}>
+          <Typography
+            sx={{
+              textAlign: "center",
+              mt: 5,
+              color: "gray",
+            }}
+          >
             {isAdmin
               ? 'Nenhum aluno encontrado. Clique em "Adicionar".'
               : "Nenhum aluno encontrado."}

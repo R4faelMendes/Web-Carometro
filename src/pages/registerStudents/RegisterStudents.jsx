@@ -42,7 +42,6 @@ function RegisterStudent() {
     event.preventDefault();
 
     try {
-      // Chama a função da API baseada no seu Controller
       const response = await api.postStudent(student);
 
       setAlert({
@@ -51,14 +50,12 @@ function RegisterStudent() {
         message: response.data.message,
       });
 
-      // Limpa os campos, mas mantém o ID da turma
       setStudent({
         student_name: "",
         student_cpf: "",
         fk_class_id: classId,
       });
 
-      // Opcional: Voltar para a lista após 2 segundos
       setTimeout(() => navigate(`/class/${classId}`), 2000);
 
     } catch (error) {
@@ -71,7 +68,7 @@ function RegisterStudent() {
   };
 
   return (
-    <LayoutBase>
+    
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -155,8 +152,6 @@ function RegisterStudent() {
                 mt: 3, 
                 mb: 2, 
                 height: '50px',
-                backgroundColor: "#001A4D",
-                "&:hover": { backgroundColor: "#001133" }
               }}
             >
               Salvar Cadastro
@@ -164,11 +159,9 @@ function RegisterStudent() {
           </Box>
         </Box>
       </Container>
-    </LayoutBase>
   );
 }
 
-// Estilo padronizado conforme sua solicitação
 const inputStyle = {
   "& .MuiOutlinedInput-root": {
     borderRadius: "15px",

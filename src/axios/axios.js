@@ -28,17 +28,13 @@ const apiService = {
   postCadastro: (user) => api.post("/user", user),
   updateUser: (id, data) => api.patch(`/user/${id}`, data),
   deleteUser: (id) => api.delete(`/user/${id}`),
-
-  // PASSWORD
   updatePassword: (data) => api.patch("/password/user", data),
 
   // COURSE
   createCourse: (data) => api.post("/course", data),
   assignUsersToCourse: (course_id, user_ids) => api.post(`/course/${course_id}/assign-users`, { user_ids }),
   getAllCourses: () => api.get("/course/all"),
-  getCourses: () => api.get("/course"),
   updateCourse: (id, data) => api.patch(`/course/${id}`, data), // Rota para atualizar o curso
-
 
   // CLASS (Turmas)
   createClass: (data) => api.post("/class", data),
@@ -51,14 +47,16 @@ const apiService = {
   // ALUNOS
   getStudentsByClass: (classId) => api.get(`/student/${classId}`),
   postStudent: (data) => api.post("/student", data),
+  readAllStudents: () => api.get("/student"),
+  updateStudent: (id, data) => api.patch(`/student/${id}`, data),
+  deleteStudent: (id) => api.delete(`/student/${id}`),
 
   // INCIDENTS
   getAllIncidents: () => api.get("/incident"),
-  getIncidentsByStudent: (studentId) => api.get(`/incident/${studentId}`),
   createIncident: (data) => api.post("/incident", data),
   updateIncident: (id, data) => api.patch(`/incident/${id}`, data),
   deleteIncident: (id) => api.delete(`/incident/${id}`),
-
+  getIncidentsByStudentId: (studentId) => api.get(`/incident/${studentId}`),
 };
 
 export default apiService;

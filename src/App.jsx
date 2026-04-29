@@ -9,9 +9,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/listUsers/ListUsers";
 import ListClass from "./pages/listClass/ListClass";
 import RegisterCourse from "./pages/registerCourse/RegisterCourse";
-import StudentsList from "./pages/class/Class";
+import StudentsList from "./pages/listStudents/ListStudents";
 import RegisterStudent from "./pages/registerStudents/RegisterStudents";
-import Incidents from "./pages/incidents/Incidents";
+import Incidents from "./pages/listincidents/ListIncidents";
+import Student from "./pages/Student/Student";
 
 function App() {
   return (
@@ -65,32 +66,41 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route 
-            path="/class/:classId" 
+          <Route
+            path="/class/:classId"
             element={
               <ProtectedRoute>
-                  <StudentsList />
-              </ProtectedRoute>} 
-            />
-          <Route 
-            path="/registerstudent/:classId" 
+                <StudentsList />
+              </ProtectedRoute>}
+          />
+          <Route
+            path="/registerstudent/:classId"
             element={
               <ProtectedRoute>
                 <RegisterStudent />
-              </ProtectedRoute>} 
-            />
-          <Route 
+              </ProtectedRoute>}
+          />
+          <Route
             path="/incidents"
             element={
               <ProtectedRoute>
                 <Incidents />
-              </ProtectedRoute>} 
-            />
-        </Routes>
-      </BrowserRouter>
+              </ProtectedRoute>}
+          />
+
+        <Route
+          path="/student/:studentId" // Adicionado :studentId para capturar o parâmetro
+          element={
+            <ProtectedRoute>
+              <Student />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
 
 
-    </div>
+    </div >
   );
 }
 

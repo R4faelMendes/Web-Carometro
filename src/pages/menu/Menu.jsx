@@ -10,13 +10,13 @@ import {
   CircularProgress,
 } from "@mui/material";
 import Layout from "../../components/whitePag/WhitePag";
-import api from "../../axios/axios"; // Importando nossa configuração da API
+import api from "../../axios/axios";
 
 function Menu() {
   const navigate = useNavigate();
 
   // Estados
-  const [myCourses, setMyCourses] = useState([]);
+  const [myClasses, setMyClasses] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
@@ -31,28 +31,24 @@ function Menu() {
     }
   }, [token, navigate]);
 
-  // Efeito para buscar cursos se o usuário NÃO for admin
+  // Buscar TURMAS do usuário (CORRETO)
   useEffect(() => {
-    const fetchMyCourses = async () => {
+    const fetchMyClasses = async () => {
       if (!isAdmin && token) {
         setLoading(true);
         try {
-          // Rota: router.get("/course", verifyJWT, CourseController.readCoursesByIdUser)
-          // O ID do usuário o backend pega automaticamente pelo JWT no interceptor
-          const response = await api.getCourses(); 
-          
-          // Ajuste aqui conforme o formato de resposta da sua API
-          const data = response.data?.data || response.data || [];
-          setMyCourses(data);
+          const response = await api.getClassesByUser(); // ✅ AGORA CERTO
+          const data = response.data?.data || [];
+          setMyClasses(data);
         } catch (error) {
-          console.error("Erro ao carregar seus cursos:", error);
+          console.error("Erro ao carregar turmas:", error);
         } finally {
           setLoading(false);
         }
       }
     };
 
-    fetchMyCourses();
+    fetchMyClasses();
   }, [isAdmin, token]);
 
   const logout = () => {
@@ -75,68 +71,79 @@ function Menu() {
           <Box sx={{ width: "45%" }}>
             {/* Perfil do Usuário */}
             <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
-              <Avatar sx={{ width: 60, height: 60, mr: 2 }} />
+              <Avatar sx={{ width: 60, height: 60, mr: 2 }}>
+                {user?.name?.[0]}
+              </Avatar>
               <Box>
                 <Typography variant="h6">
                   Olá, {user?.name || "Usuário"}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ textTransform: "capitalize" }}
+                >
                   {user?.user_type || "Sem cargo"}
                 </Typography>
               </Box>
             </Box>
 
-            {/* Menu de Botões */}
+            {/* Menu */}
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {isAdmin ? (
-                // --- VISÃO ADMIN ---
                 <>
                   <Button component={Link} to="/listusers" sx={btnStyle}>
                     Listar Usuários
                   </Button>
+
                   <Button component={Link} to="/listclass" sx={btnStyle}>
                     Listar Turmas
                   </Button>
+
                   <Button component={Link} to="/incidents" sx={btnStyle}>
                     Histórico de Ocorrências
                   </Button>
+
                   <Button component={Link} to="/register" sx={btnStyle}>
                     Adicionar Usuários
                   </Button>
                 </>
               ) : (
-                // --- VISÃO USUÁRIO REGULAR (MEUS CURSOS) ---
                 <>
                   {loading ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ display: "flex", justifyContent: "center" }}>
                       <CircularProgress size={24} />
                     </Box>
-                  ) : myCourses.length > 0 ? (
-                    myCourses.map((curso) => (
+                  ) : myClasses.length > 0 ? (
+                    myClasses.map((cls) => (
                       <Button
-                        key={curso.id || curso.course_id}
+                        key={cls.class_id}
                         component={Link}
-                        to={`/class/${curso.id || curso.course_id}`}
+                        to={`/class/${cls.class_id}`} // ✅ IGUAL AO LISTCLASS
                         sx={btnStyle}
                       >
-                        {curso.name || curso.course_name}
+                        {cls.class_name} - {cls.course_name}
                       </Button>
                     ))
                   ) : (
-                    <Typography variant="body2" color="gray" textAlign="center">
-                      Nenhum curso vinculado a você.
+                    <Typography
+                      variant="body2"
+                      color="gray"
+                      textAlign="center"
+                    >
+                      Nenhuma turma vinculada a você.
                     </Typography>
                   )}
                 </>
               )}
 
-              {/* Botão Sair */}
+              {/* Sair */}
               <Button
                 onClick={logout}
                 sx={{
                   ...btnStyle,
                   backgroundColor: "#d32f2f",
-                  "&:hover": { backgroundColor: "#b71c1c" }
+                  "&:hover": { backgroundColor: "#b71c1c" },
                 }}
               >
                 Sair
@@ -151,7 +158,7 @@ function Menu() {
           />
 
           <Box sx={{ width: "45%" }}>
-            {/* Espaço reservado para futuras informações/imagens */}
+            {/* Espaço futuro */}
           </Box>
         </Box>
       </Container>
