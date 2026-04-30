@@ -33,7 +33,6 @@ function RegisterCourse() {
     message: "",
   });
 
-  // ---------------- USERS ----------------
   useEffect(() => {
     async function fetchUsers() {
       try {
@@ -55,7 +54,6 @@ function RegisterCourse() {
     fetchUsers();
   }, []);
 
-  // ---------------- CREATE COURSE ----------------
   const handleCreateCourse = async () => {
     try {
       if (!courseName.trim()) {
@@ -93,7 +91,6 @@ function RegisterCourse() {
     }
   };
 
-  // ---------------- USERS TOGGLE ----------------
   const toggleUser = (id) => {
     setSelectedUsers((prev) =>
       prev.includes(id)
@@ -102,7 +99,6 @@ function RegisterCourse() {
     );
   };
 
-  // ---------------- ASSIGN USERS ----------------
   const handleAssignUsers = async () => {
     try {
       if (!courseId) throw new Error("courseId inválido");
@@ -125,7 +121,6 @@ function RegisterCourse() {
     }
   };
 
-  // ---------------- CREATE CLASS ----------------
   const handleCreateClass = async () => {
     try {
       if (!courseId) throw new Error("courseId não definido");
@@ -133,7 +128,7 @@ function RegisterCourse() {
 
       await api.createClass({
         class_name: className.trim(),
-        course_id: Number(courseId), // 🔥 FORÇANDO TIPO CORRETO
+        course_id: Number(courseId),
       });
 
       setAlert({

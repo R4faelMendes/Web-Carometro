@@ -35,12 +35,10 @@ function StudentsList() {
     message: "",
   });
 
-  // 🔥 FIXO (SEM BACKEND)
   const classInfo = {
     class_name: "Sala de Aula",
   };
 
-  // 🔥 BUSCAR ALUNOS
   const fetchStudents = useCallback(async () => {
     try {
       setLoading(true);
@@ -64,7 +62,6 @@ function StudentsList() {
     fetchStudents();
   }, [fetchStudents]);
 
-  // 🔍 FILTRO
   const filteredStudents = students.filter((student) =>
     student.student_name?.toLowerCase().includes(search.toLowerCase())
   );
@@ -72,7 +69,6 @@ function StudentsList() {
   return (
     <LayoutBase>
       <Box sx={{ p: 3 }}>
-        {/* HEADER */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 4, mb: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <IconButton onClick={() => navigate(-1)}>

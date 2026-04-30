@@ -210,13 +210,13 @@ function Student() {
                     <Grid item xs={12} md={9}>
                         <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, textAlign: 'center' }}>INFORMAÇÕES ALUNO</Typography>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                            <Paper variant="outlined" sx={{ py: 1.2, px: 40, borderRadius: 2 }}>
+                            <Paper variant="outlined" sx={{ py: 1.2, px: 30, borderRadius: 2 }}>
                                 <Typography><b>ALUNO :</b> {student?.student_name}</Typography>
                             </Paper>
-                            <Paper variant="outlined" sx={{ py: 1.2, px: 40, borderRadius: 2 }}>
+                            <Paper variant="outlined" sx={{ py: 1.2, px: 30, borderRadius: 2 }}>
                                 <Typography><b>TURMA :</b> {getClassName(student?.fk_class_id)}</Typography>
                             </Paper>
-                            <Paper variant="outlined" sx={{ py: 1.2, px: 40, borderRadius: 2 }}>
+                            <Paper variant="outlined" sx={{ py: 1.2, px: 30, borderRadius: 2 }}>
                                 <Typography><b>CPF :</b> {student?.student_cpf}</Typography>
                             </Paper>
                         </Box>

@@ -13,7 +13,7 @@ import CustomAlert from "../../components/customAlert/CustomAlert";
 function ListClass() {
   const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
-  const [allCourses, setAllCourses] = useState([]); // Guardar todos os cursos para achar o ID
+  const [allCourses, setAllCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
   const [openEdit, setOpenEdit] = useState(false);
@@ -27,7 +27,6 @@ function ListClass() {
     try {
       setLoading(true);
       
-      // 1. Buscamos as turmas E os cursos (já que a turma vem sem ID de curso)
       const [resClasses, resCourses] = await Promise.all([
         api.getAllClasses(),
         api.getAllCourses()
@@ -38,17 +37,14 @@ function ListClass() {
       
       setAllCourses(coursesArray);
 
-      // 2. Mapeamento tentando encontrar o ID do curso pelo nome, 
-      // já que o Backend não envia o fk_course_id no readAllClasses
+
       const formatted = classesArray.map((item) => {
-        // Tenta achar o curso na lista de cursos que tenha o mesmo nome
         const matchedCourse = coursesArray.find(c => c.course_name === item.course_name);
         
         return {
           class_id: item.class_id,
           class_name: item.class_name,
           course_name: item.course_name || "Curso não definido",
-          // Se o backend não mandou, usamos o que achamos na lista geral
           course_id: item.fk_course_id || item.course_id || matchedCourse?.course_id 
         };
       });
@@ -75,20 +71,16 @@ function ListClass() {
 
       if (!classId) throw new Error("ID da turma não encontrado.");
 
-      // Se ainda for undefined, tentamos uma última busca na lista carregada
       if (!courseId) {
         const recoverCourse = allCourses.find(c => c.course_name === selectedClass.course_name);
         courseId = recoverCourse?.course_id;
       }
 
-      // 1. Atualiza a Turma (Nome da sala)
       await api.updateClass(classId, { class_name: selectedClass.class_name });
 
-      // 2. Atualiza o Curso (Nome do curso)
       if (courseId) {
         await api.updateCourse(courseId, { course_name: selectedClass.course_name });
       } else {
-        // Se chegar aqui, realmente o curso não existe no sistema ou o nome foi alterado
         throw new Error("Não foi possível localizar o ID do curso para este nome.");
       }
 
@@ -131,7 +123,7 @@ function ListClass() {
       <Box sx={{ p: 3 }}>
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4, mb: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconButton onClick={() => navigate(-1)}><ArrowBackIcon /></IconButton>
+            <IconButton onClick={() => navigate("/listclass")}><ArrowBackIcon /></IconButton>
             <Typography variant="h5" sx={{ fontWeight: "bold" }}>Turmas Cadastradas</Typography>
           </Box>
           <TextField
