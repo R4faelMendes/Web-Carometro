@@ -18,7 +18,6 @@ function Menu() {
   const [myClasses, setMyClasses] = useState([]);
   const [loading, setLoading] = useState(false);
   
-  // Estado para armazenar os logs
   const [logs, setLogs] = useState([]);
   const [loadingLogs, setLoadingLogs] = useState(false);
 
@@ -27,14 +26,12 @@ function Menu() {
 
   const isAdmin = user?.user_type?.toLowerCase() === "admin";
 
-  // Redirecionamento se não houver token
   useEffect(() => {
     if (!token) {
       navigate("/");
     }
   }, [token, navigate]);
 
-  // Busca de Turmas (para professores/alunos)
   useEffect(() => {
     const fetchMyClasses = async () => {
       if (!isAdmin && token) {
@@ -54,7 +51,6 @@ function Menu() {
     fetchMyClasses();
   }, [isAdmin, token]);
 
-  // Busca de Logs (Apenas para Admin)
   useEffect(() => {
     const fetchLogs = async () => {
       if (isAdmin && token) {
@@ -92,7 +88,6 @@ function Menu() {
             justifyContent: "space-between",
           }}
         >
-          {/* LADO ESQUERDO: Perfil e Menu */}
           <Box sx={{ width: "45%" }}>
             {/* Perfil do Usuário */}
             <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
@@ -182,7 +177,6 @@ function Menu() {
             sx={{ backgroundColor: "#2957A4", width: "2px" }}
           />
 
-          {/* LADO DIREITO: Log Geral (Espaço Futuro preenchido) */}
           <Box sx={{ width: "45%", height: "70%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
             <Typography variant="h5" sx={{ mb: 2, color: "#2957A4", fontWeight: "bold" }}>
                  Minhas Noficações

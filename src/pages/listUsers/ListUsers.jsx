@@ -35,14 +35,13 @@ function Usuarios() {
   const fetchUsers = async () => {
     try {
       const response = await api.getUsers();
-      // A tua API retorna os dados dentro de response.data.data
       const rawUsers = response.data?.data || [];
       
       setUsers(rawUsers.map((user) => ({
         user_id: user.user_id,
         user_name: user.user_name,
         user_email: user.user_email,
-        user_cpf: user.user_cpf, // Garante que o CPF é guardado para não vir vazio
+        user_cpf: user.user_cpf, 
         user_type: user.user_type,
       })));
     } catch (error) {
@@ -56,11 +55,9 @@ function Usuarios() {
 
   const toggleUserType = async (user) => {
     try {
+      //Operador Ternario
       const newType = user.user_type === "admin" ? "regular" : "admin";
 
-      // CORREÇÃO: A tua API no Back-end usa o "validateUser". 
-      // Se enviares o CPF no toggle, ele pode dar erro de duplicidade.
-      // Vamos enviar apenas o estritamente necessário.
       await api.updateUser(user.user_id, {
         user_type: newType,
       });
@@ -85,10 +82,7 @@ function Usuarios() {
     if (!selectedUser) return;
 
     try {
-      // CORREÇÃO PARA O ERRO 500:
-      // A tua API Service não processa o user_cpf no UPDATE (visto no código que mandaste).
-      // Se tentares enviar o CPF para uma API que não o espera no update, ela pode quebrar.
-      // Enviamos apenas Nome e Email que são os campos que o teu Service suporta.
+
       await api.updateUser(selectedUser.user_id, {
         user_name: selectedUser.user_name,
         user_email: selectedUser.user_email,
@@ -193,7 +187,6 @@ function Usuarios() {
           <TextField label="Email" fullWidth margin="normal" value={selectedUser?.user_email || ""} 
             onChange={(e) => setSelectedUser({ ...selectedUser, user_email: e.target.value })} />
           
-          {/* CPF apenas leitura, já que a tua API não suporta update de CPF no Service */}
           <TextField label="CPF" fullWidth margin="normal" value={selectedUser?.user_cpf || ""} disabled />
 
           <Button variant="contained" color="warning" fullWidth sx={{ mt: 2 }} onClick={handleResetPassword}>
