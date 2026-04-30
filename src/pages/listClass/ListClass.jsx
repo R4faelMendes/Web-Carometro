@@ -123,7 +123,7 @@ function ListClass() {
       <Box sx={{ p: 3 }}>
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4, mb: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconButton onClick={() => navigate("/listclass")}><ArrowBackIcon /></IconButton>
+            <IconButton onClick={() => navigate("/menu")}><ArrowBackIcon /></IconButton>
             <Typography variant="h5" sx={{ fontWeight: "bold" }}>Turmas Cadastradas</Typography>
           </Box>
           <TextField
