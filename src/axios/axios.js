@@ -29,6 +29,8 @@ const apiService = {
   updateUser: (id, data) => api.patch(`/user/${id}`, data),
   deleteUser: (id) => api.delete(`/user/${id}`),
   updatePassword: (data) => api.patch("/password/user", data),
+  resetPassword: (id) => api.patch(`/user/reset-password/${id}`),
+
 
   // COURSE
   createCourse: (data) => api.post("/course", data),
@@ -57,6 +59,12 @@ const apiService = {
   updateIncident: (id, data) => api.patch(`/incident/${id}`, data),
   deleteIncident: (id) => api.delete(`/incident/${id}`),
   getIncidentsByStudentId: (studentId) => api.get(`/incident/${studentId}`),
+
+  //LOGS
+  getAllLogs: () => api.get("/log"),
+
+
 };
 
 export default apiService;
+

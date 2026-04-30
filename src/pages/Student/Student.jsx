@@ -9,7 +9,6 @@ import {
     Edit as EditIcon,
     Delete as DeleteIcon
 } from "@mui/icons-material";
-
 import LayoutBase from "../../components/layoutBase/LayoutBase";
 import api from "../../axios/axios";
 import CustomAlert from "../../components/customAlert/CustomAlert";
@@ -41,29 +40,41 @@ function Student() {
     const fetchData = useCallback(async () => {
         try {
             setLoading(true);
-            const [studentsRes, classesRes] = await Promise.all([
-                api.readAllStudents(),
-                api.getAllClasses()
-            ]);
 
-            const currentStudent = studentsRes.data?.data.find(s => s.student_id === parseInt(studentId));
-            setStudent(currentStudent);
-            setClasses(classesRes.data?.data || []);
+            // 1. Carrega os estudantes primeiro (Rota permitida para todos)
+            const studentsRes = await api.readAllStudents();
+            const allStudents = studentsRes.data?.data || [];
+            const currentStudent = allStudents.find(s => s.student_id === parseInt(studentId));
 
             if (currentStudent) {
+                setStudent(currentStudent);
                 setEditData({
                     student_name: currentStudent.student_name,
                     student_cpf: currentStudent.student_cpf,
                     fk_class_id: currentStudent.fk_class_id
                 });
             }
+
+            // 2. Tenta carregar as turmas de forma independente
+            // Usamos um try/catch interno para que, se falhar (usuário regular), 
+            // o resto da página continue funcionando
+            try {
+                // Se for admin, ele pega todas. Se não for, a API vai dar erro e cairemos no catch silencioso
+                const classesRes = await api.getAllClasses();
+                setClasses(classesRes.data?.data || []);
+            } catch (classError) {
+                console.warn("Usuário não tem permissão para listar todas as turmas.");
+                // Opcional: buscar apenas as turmas do usuário logado se houver rota para isso
+                setClasses([]);
+            }
+
         } catch (error) {
-            setAlert({ show: true, type: "error", message: "Erro ao carregar dados." });
+            console.error("Erro ao carregar estudante:", error);
+            setAlert({ show: true, type: "error", message: "Erro ao carregar dados do aluno." });
         } finally {
             setLoading(false);
         }
     }, [studentId]);
-
     const fetchIncidents = useCallback(async () => {
         try {
             const res = await api.getIncidentsByStudentId(studentId);
@@ -237,13 +248,13 @@ function Student() {
                                     variant="outlined"
                                     sx={{
                                         p: 2,
-                                        width: '200px', 
-                                        height: '150px', 
+                                        width: '200px',
+                                        height: '150px',
                                         flexShrink: 0, // Impede que o card amasse
                                         display: 'flex',
                                         flexDirection: 'column',
                                         justifyContent: 'space-between',
-                                        borderRadius: 2, 
+                                        borderRadius: 2,
                                         bgcolor: '#f9f9f9'
                                     }}
                                 >

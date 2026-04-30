@@ -15,29 +15,32 @@ import api from "../../axios/axios";
 function Menu() {
   const navigate = useNavigate();
 
-  // Estados
   const [myClasses, setMyClasses] = useState([]);
   const [loading, setLoading] = useState(false);
+  
+  // Estado para armazenar os logs
+  const [logs, setLogs] = useState([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
 
   const isAdmin = user?.user_type?.toLowerCase() === "admin";
 
-  // Redireciona se não estiver logado
+  // Redirecionamento se não houver token
   useEffect(() => {
     if (!token) {
       navigate("/");
     }
   }, [token, navigate]);
 
-  // Buscar TURMAS do usuário (CORRETO)
+  // Busca de Turmas (para professores/alunos)
   useEffect(() => {
     const fetchMyClasses = async () => {
       if (!isAdmin && token) {
         setLoading(true);
         try {
-          const response = await api.getClassesByUser(); // ✅ AGORA CERTO
+          const response = await api.getClassesByUser(); 
           const data = response.data?.data || [];
           setMyClasses(data);
         } catch (error) {
@@ -49,6 +52,27 @@ function Menu() {
     };
 
     fetchMyClasses();
+  }, [isAdmin, token]);
+
+  // Busca de Logs (Apenas para Admin)
+  useEffect(() => {
+    const fetchLogs = async () => {
+      if (isAdmin && token) {
+        setLoadingLogs(true);
+        try {
+          const response = await api.getAllLogs();
+          const data = response.data?.data || [];
+          // Mantém apenas os 10 últimos registros
+          setLogs(data.slice(0, 10));
+        } catch (error) {
+          console.error("Erro ao carregar logs:", error);
+        } finally {
+          setLoadingLogs(false);
+        }
+      }
+    };
+
+    fetchLogs();
   }, [isAdmin, token]);
 
   const logout = () => {
@@ -68,6 +92,7 @@ function Menu() {
             justifyContent: "space-between",
           }}
         >
+          {/* LADO ESQUERDO: Perfil e Menu */}
           <Box sx={{ width: "45%" }}>
             {/* Perfil do Usuário */}
             <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
@@ -88,7 +113,7 @@ function Menu() {
               </Box>
             </Box>
 
-            {/* Menu */}
+            {/* Menu de Ações */}
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {isAdmin ? (
                 <>
@@ -119,7 +144,7 @@ function Menu() {
                       <Button
                         key={cls.class_id}
                         component={Link}
-                        to={`/class/${cls.class_id}`} // ✅ IGUAL AO LISTCLASS
+                        to={`/class/${cls.class_id}`} 
                         sx={btnStyle}
                       >
                         {cls.class_name} - {cls.course_name}
@@ -137,7 +162,7 @@ function Menu() {
                 </>
               )}
 
-              {/* Sair */}
+              {/* Botão Sair */}
               <Button
                 onClick={logout}
                 sx={{
@@ -157,8 +182,58 @@ function Menu() {
             sx={{ backgroundColor: "#2957A4", width: "2px" }}
           />
 
-          <Box sx={{ width: "45%" }}>
-            {/* Espaço futuro */}
+          {/* LADO DIREITO: Log Geral (Espaço Futuro preenchido) */}
+          <Box sx={{ width: "45%", height: "70%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            <Typography variant="h5" sx={{ mb: 2, color: "#2957A4", fontWeight: "bold" }}>
+                 Minhas Noficações
+            </Typography>
+
+            <Box sx={{ 
+              flexGrow: 1, 
+              overflowY: "auto", 
+              pr: 1,
+              "&::-webkit-scrollbar": { width: "5px" },
+              "&::-webkit-scrollbar-thumb": { backgroundColor: "#2957A4", borderRadius: "10px" }
+            }}>
+              {loadingLogs ? (
+                <CircularProgress size={20} />
+              ) : isAdmin ? (
+                logs.map((log) => (
+                  <Box 
+                    key={log.log_id} 
+                    sx={{ 
+                      mb: 1.5, 
+                      p: 1.5, 
+                      bgcolor: "#f5f5f5", 
+                      borderRadius: "10px",
+                    }}
+                  >
+                    <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+                      {log.action_type} em {log.table_name}
+                    </Typography>
+                    <Typography variant="body2">
+                      Alvo: {log.target_name || `ID: ${log.target_id}`}
+                    </Typography>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+                      <Typography variant="caption" color="text.secondary">
+                        Por: {log.responsible_name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {new Date(log.log_date).toLocaleDateString("pt-BR")}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))
+              ) : (
+                <Typography variant="body2" color="gray">
+                    Você não possui notificações
+                </Typography>
+              )}
+              
+              {isAdmin && logs.length === 0 && !loadingLogs && (
+                <Typography variant="body2" color="gray">Nenhuma atividade recente.</Typography>
+              )}
+            </Box>
           </Box>
         </Box>
       </Container>
@@ -171,6 +246,8 @@ const btnStyle = {
   height: 45,
   backgroundColor: "#2957A4",
   color: "white",
+  textTransform: "none",
+  fontWeight: "bold",
   "&:hover": {
     backgroundColor: "#1e3f7a",
   },
