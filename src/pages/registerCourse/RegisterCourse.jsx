@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   TextField,
   Button,
@@ -10,12 +11,18 @@ import {
   DialogContent,
   DialogActions,
   Checkbox,
+  IconButton
 } from "@mui/material";
+import {
+  ArrowBack as ArrowBackIcon,
+} from "@mui/icons-material";
 
 import api from "../../axios/axios";
 import CustomAlert from "../../components/customAlert/CustomAlert";
 
 function RegisterCourse() {
+  const navigate = useNavigate();
+  
   const [courseName, setCourseName] = useState("");
   const [courseId, setCourseId] = useState(null);
 
@@ -153,20 +160,32 @@ function RegisterCourse() {
     }
   };
 
-  // ---------------- UI (NÃO MEXIDO) ----------------
   return (
     <Container maxWidth="xs">
-      <Box
+
+          <Box
         sx={{
-          mt: 4,
+          marginTop: 2,
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
+          alignItems: "flex-start",
         }}
       >
-        <Typography variant="h3" sx={{ color: "white" }}>
-          CURSO
-        </Typography>
+        <Box sx={{ display: "flex" }}>
+
+          <IconButton onClick={() => navigate(-1)} sx={{ color: "white",padding:2 }}>
+            <ArrowBackIcon />
+          </IconButton>
+
+          <Typography
+            component="h1"
+            variant="h3"
+            fontWeight="bold"
+            sx={{ color: "white" }}
+          >
+            Criar Curso
+          </Typography>
+        </Box>
 
         {alert.show && (
           <CustomAlert

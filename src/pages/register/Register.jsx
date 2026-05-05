@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   TextField,
   Button,
@@ -10,11 +12,15 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  IconButton,
 } from "@mui/material";
+import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import api from "../../axios/axios";
 import CustomAlert from "../../components/customAlert/CustomAlert";
 
 function Register() {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState({
     user_name: "",
     user_cpf: "",
@@ -54,14 +60,12 @@ function Register() {
         user_email: "",
         user_type: "",
       });
-
     } catch (error) {
       setAlert({
         show: true,
         type: "error",
         message:
-          error.response?.data?.message ||
-          "Erro ao tentar cadastrar usuário",
+          error.response?.data?.message || "Erro ao tentar cadastrar usuário",
       });
     }
   };
@@ -75,17 +79,24 @@ function Register() {
           marginTop: 2,
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
+          alignItems: "flex-start",
         }}
       >
-        <Typography
-          component="h1"
-          variant="h3"
-          fontWeight="bold"
-          sx={{ color: "white" }}
-        >
-          CADASTRO
-        </Typography>
+        <Box sx={{ display: "flex" }}>
+
+          <IconButton onClick={() => navigate(-1)} sx={{ color: "white",padding:2 }}>
+            <ArrowBackIcon />
+          </IconButton>
+
+          <Typography
+            component="h1"
+            variant="h3"
+            fontWeight="bold"
+            sx={{ color: "white" }}
+          >
+            CADASTRO
+          </Typography>
+        </Box>
 
         {alert.show && (
           <CustomAlert type={alert.type} message={alert.message} />

@@ -32,7 +32,6 @@ function LayoutBase({ children }) {
       <Box
         sx={{
           width: "90%",
-          // MUDANÇA AQUI: minHeight em vez de height
           minHeight: "85vh", 
           height: "auto", // Permite que ele se ajuste ao conteúdo
           background: "white",
