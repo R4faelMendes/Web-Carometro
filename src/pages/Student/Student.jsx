@@ -41,7 +41,6 @@ function Student() {
         try {
             setLoading(true);
 
-            // 1. Carrega os estudantes primeiro (Rota permitida para todos)
             const studentsRes = await api.readAllStudents();
             const allStudents = studentsRes.data?.data || [];
             const currentStudent = allStudents.find(s => s.student_id === parseInt(studentId));
@@ -55,16 +54,11 @@ function Student() {
                 });
             }
 
-            // 2. Tenta carregar as turmas de forma independente
-            // Usamos um try/catch interno para que, se falhar (usuário regular), 
-            // o resto da página continue funcionando
             try {
-                // Se for admin, ele pega todas. Se não for, a API vai dar erro e cairemos no catch silencioso
                 const classesRes = await api.getAllClasses();
                 setClasses(classesRes.data?.data || []);
             } catch (classError) {
                 console.warn("Usuário não tem permissão para listar todas as turmas.");
-                // Opcional: buscar apenas as turmas do usuário logado se houver rota para isso
                 setClasses([]);
             }
 

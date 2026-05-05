@@ -9,7 +9,7 @@ import {
   Avatar,
   CircularProgress,
 } from "@mui/material";
-import Layout from "../../components/whitePag/WhitePag";
+import LayoutBase from "../../components/layoutBase/LayoutBase";
 import api from "../../axios/axios";
 
 function Menu() {
@@ -78,7 +78,7 @@ function Menu() {
   };
 
   return (
-    <Layout>
+    <LayoutBase>
       <Container maxWidth="lg">
         <Box
           sx={{
@@ -231,7 +231,7 @@ function Menu() {
           </Box>
         </Box>
       </Container>
-    </Layout>
+    </LayoutBase>
   );
 }
 
