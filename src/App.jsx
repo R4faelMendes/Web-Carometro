@@ -1,4 +1,3 @@
-// Import de páginas
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Home from "./pages/home/Home";
@@ -14,12 +13,16 @@ import RegisterStudent from "./pages/registerStudents/RegisterStudents";
 import Incidents from "./pages/listincidents/ListIncidents";
 import Student from "./pages/Student/Student";
 
+import { ThemeProvider } from "./components/colors/Colors";
+
 function App() {
   return (
-    <div>
+    <ThemeProvider>
       <CssBaseline />
+
       <BrowserRouter>
         <Routes>
+
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
 
@@ -58,6 +61,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/registercourses"
             element={
@@ -66,41 +70,46 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/class/:classId"
             element={
               <ProtectedRoute>
                 <StudentsList />
-              </ProtectedRoute>}
+              </ProtectedRoute>
+            }
           />
+
           <Route
             path="/registerstudent/:classId"
             element={
               <ProtectedRoute>
                 <RegisterStudent />
-              </ProtectedRoute>}
+              </ProtectedRoute>
+            }
           />
+
           <Route
             path="/incidents"
             element={
               <ProtectedRoute>
                 <Incidents />
-              </ProtectedRoute>}
+              </ProtectedRoute>
+            }
           />
 
-        <Route
-          path="/student/:studentId" // Adicionado :studentId para capturar o parâmetro
-          element={
-            <ProtectedRoute>
-              <Student />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+          <Route
+            path="/student/:studentId"
+            element={
+              <ProtectedRoute>
+                <Student />
+              </ProtectedRoute>
+            }
+          />
 
-
-    </div >
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

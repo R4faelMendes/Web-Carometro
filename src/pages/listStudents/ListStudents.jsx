@@ -125,53 +125,86 @@ function StudentsList() {
           />
         )}
 
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          filteredStudents.map((student, index) => (
+{loading ? (
+  <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+    <CircularProgress />
+  </Box>
+) : (
+  <Box
+    sx={{
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 2,
+    }}
+  >
+    {filteredStudents.map((student, index) => (
+      <Box
+        key={student.student_id || index}
+        sx={{
+          width: 180,
+          height: 150,
+          background: "#090178",
+          borderRadius: "12px",
+          overflow: "hidden",
+          cursor: "pointer",
+          transition: "background 0.2s",
+          "&:hover": {
+            background: "#10108B",
+          },
+        }}
+        onClick={() => navigate(`/student/${student.student_id}`)}
+      >
+        
+        <Box
+          sx={{
+            width: "100%",
+            aspectRatio: "1 / 0.6",
+            background: "#1e1ecc",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+          }}
+        >
+          {student.photo ? (
             <Box
-              key={student.student_id || index}
+              component="img"
+              src={student.photo}
               sx={{
-                display: "flex",
-                alignItems: "center",
-                mb: 2,
-                gap: 2,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <Typography
+              sx={{
+                fontSize: 48,
+                fontWeight: 500,
+                color: "white",
               }}
             >
-              <Box
-                sx={{
-                  flex: 1,
-                  background: "#eee",
-                  borderRadius: "10px",
-                  padding: "10px 15px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  cursor: "pointer",
-                  "&:hover": {
-                    background: "#e0e0e0",
-                  },
-                }}
-                onClick={() =>
-                  navigate(`/student/${student.student_id}`)
-                }
-              >
-                <Avatar
-                  src={student.photo || ""}
-                  sx={{ width: 40, height: 40 }}
-                >
-                  {student.student_name?.[0]}
-                </Avatar>
+              {student.student_name?.[0]?.toUpperCase()}
+            </Typography>
+          )}
+        </Box>
 
-                <Typography sx={{ fontWeight: 500 }}>
-                  {student.student_name}
-                </Typography>
-              </Box>
-            </Box>
-          ))
-        )}
+        {/* Nome */}
+        <Box sx={{ padding: "10px", textAlign: "center" }}>
+          <Typography
+            sx={{
+              color: "white",
+              fontSize: 15,
+              fontWeight: 500,
+            }}
+          >
+            {student.student_name}
+          </Typography>
+        </Box>
+      </Box>
+    ))}
+  </Box>
+)}
 
         {!loading && filteredStudents.length === 0 && (
           <Typography
