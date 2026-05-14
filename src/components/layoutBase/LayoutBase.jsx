@@ -29,7 +29,7 @@ function LayoutBase({ children }) {
         alignItems: "center",
         justifyContent: "center",
         padding: "40px 0",
-        transition: "0.3s ease", // 🔥 animação
+        transition: "0.3s ease",
       }}
     >
       {/* LOGO */}
@@ -37,27 +37,32 @@ function LayoutBase({ children }) {
         <img src={logo} alt="logo" width={80} />
       </Box>
 
-      {/* ⚙️ BOTÃO */}
-      <IconButton
-        onClick={() => setOpen(true)}
-        sx={{
-          position: "absolute",
-          top: 20,
-          left: 20,
-          background: theme.primary,
-          color: "#fff",
-          zIndex: 2000, // 🔥 resolve problema de sumir
-          "&:hover": {
-            transform: "rotate(90deg)",
-          },
-          transition: "0.3s",
-        }}
-      >
-        <SettingsIcon />
-      </IconButton>
+      {!open && (
+        <IconButton
+          onClick={() => setOpen(true)}
+          sx={{
+            position: "absolute",
+            top: 20,
+            left: 20,
+            background: theme.primary,
+            color: "#fff",
+            zIndex: 2000,
+            "&:hover": {
+              transform: "rotate(90deg)",
+            },
+            transition: "0.3s",
+          }}
+        >
+          <SettingsIcon />
+        </IconButton>
+      )}
 
-      {/* 🚀 DRAWER (PAINEL LATERAL) */}
-      <Drawer anchor="left" open={open} onClose={() => setOpen(false)}>
+      <Drawer
+        anchor="left"
+        open={open}
+        onClose={() => setOpen(false)}
+        transitionDuration={300}
+      >
         <Box
           sx={{
             width: 250,
@@ -72,20 +77,19 @@ function LayoutBase({ children }) {
         >
           <Typography variant="h6">Configurações</Typography>
 
-          {/* 🔥 SWITCH CUSTOM */}
           <Box
             onClick={toggleTheme}
             sx={{
               width: "90px",
               height: "45px",
               borderRadius: "25px",
-              background: darkMode ? "#333" : "#ddd",
+              background: darkMode ? "#222" : "#dddddd",
               display: "flex",
               alignItems: "center",
               justifyContent: darkMode ? "flex-end" : "flex-start",
               padding: "5px",
               cursor: "pointer",
-              transition: "0.3s",
+              transition: "all 0.3s ease",
             }}
           >
             <Box
@@ -97,7 +101,8 @@ function LayoutBase({ children }) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                transition: "0.3s",
+                transition: "all 0.3s ease",
+                transform: darkMode ? "rotate(180deg)" : "rotate(0deg)",
               }}
             >
               {darkMode ? <DarkModeIcon /> : <LightModeIcon />}
@@ -120,7 +125,7 @@ function LayoutBase({ children }) {
           borderRadius: "20px",
           padding: "20px",
           boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
-          transition: "0.3s ease",
+          transition: "all 0.3s ease",
         }}
       >
         {children}
