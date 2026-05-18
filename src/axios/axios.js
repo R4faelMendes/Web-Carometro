@@ -24,47 +24,53 @@ const apiService = {
   postLogin: (user) => api.post("/auth/login", user),
 
   // USERS
-  getUsers: () => api.get("/user"),
-  postCadastro: (user) => api.post("/user", user),
-  updateUser: (id, data) => api.patch(`/user/${id}`, data),
-  deleteUser: (id) => api.delete(`/user/${id}`),
-  updatePassword: (data) => api.patch("/password/user", data),
-  resetPassword: (id) => api.patch(`/user/reset-password/${id}`),
-
+  getUsers: () => api.get("/users/"),
+  postCadastro: (user) => api.post("/users/", user),
+  updateUser: (user_id, data) => api.patch(`/users/${user_id}`, data),
+  deleteUser: (user_id) => api.delete(`/users/${user_id}`),
+  updatePassword: (data) => api.patch("/users/me/password", data),
+  // CORREÇÃO: faltava "/" antes de user_id
+  resetPassword: (user_id) => api.patch(`/users/${user_id}/reset-password`),
 
   // COURSE
-  createCourse: (data) => api.post("/course", data),
-  assignUsersToCourse: (course_id, user_ids) => api.post(`/course/${course_id}/assign-users`, { user_ids }),
-  getAllCourses: () => api.get("/course/all"),
-  updateCourse: (id, data) => api.patch(`/course/${id}`, data),
-  
+  createCourse: (data) => api.post("/courses", data),
+  // CORREÇÃO: rota correta do backend é /:course_id/users, não /assign-users
+  assignUsersToCourse: (course_id, user_ids) =>
+    api.post(`/courses/${course_id}/users`, { user_ids }),
+  getAllCourses: () => api.get("/courses/me"),
+  updateCourse: (course_id, data) => api.patch(`/courses/${course_id}`, data),
+
   // CLASS (Turmas)
-  createClass: (data) => api.post("/class", data),
-  getClassesByUser: () => api.get("/class"),
-  getClassesByCourse: (courseId) => api.get(`/class/${courseId}`),
-  updateClass: (id, data) => api.patch(`/class/${id}`, data),
-  deleteClass: (id) => api.delete(`/class/${id}`),
-  getAllClasses: () => api.get("/class/all"),
+  createClass: (data) => api.post("/classes/", data),
+  // CORREÇÃO: rota /classes (sem /me) é admin only — rota correta para usuário comum é /classes/me
+  getClassesByUser: () => api.get("/classes/me"),
+  getClassesByCourse: (courseId) => api.get(`/classes/course/${courseId}`),
+  updateClass: (id, data) => api.patch(`/classes/${id}`, data),
+  deleteClass: (id) => api.delete(`/classes/${id}`),
+  getAllClasses: () => api.get("/classes/me"),
 
   // STUDENTS
-  getStudentsByClass: (classId) => api.get(`/student/${classId}`),
-  postStudent: (data) => api.post("/student", data),
-  readAllStudents: () => api.get("/student"),
-  updateStudent: (id, data) => api.patch(`/student/${id}`, data),
-  deleteStudent: (id) => api.delete(`/student/${id}`),
+  getStudentsByClass: (classId) => api.get(`/students/${classId}`),
+  postStudent: (data) => api.post("/students", data),
+  readAllStudents: () => api.get("/students"),
+  updateStudent: (id, data) => api.patch(`/students/${id}`, data),
+  deleteStudent: (id) => api.delete(`/students/${id}`),
 
   // INCIDENTS
-  getAllIncidents: () => api.get("/incident"),
-  createIncident: (data) => api.post("/incident", data),
-  updateIncident: (id, data) => api.patch(`/incident/${id}`, data),
-  deleteIncident: (id) => api.delete(`/incident/${id}`),
-  getIncidentsByStudentId: (studentId) => api.get(`/incident/${studentId}`),
+  getAllIncidents: () => api.get("/incidents"),
+  createIncident: (data) => api.post("/incidents", data),
+  updateIncident: (id, data) => api.patch(`/incidents/${id}`, data),
+  deleteIncident: (id) => api.delete(`/incidents/${id}`),
+  // CORREÇÃO: rota correta é /incidents/student/:student_id, não /incidents/:student_id
+  getIncidentsByStudentId: (studentId) => api.get(`/incidents/student/${studentId}`),
 
-  //LOGS
-  getAllLogs: () => api.get("/log"),
+  // LOGS
+  getAllLogs: () => api.get("/logs"),
+  getLogsByTable: (table_name) => api.get(`/logs/table/${table_name}`),
 
-
+  // HEALTH
+  getHealth: () => api.get("/health"),
+  getHealthDb: () => api.get("/health/db"),
 };
 
 export default apiService;
-

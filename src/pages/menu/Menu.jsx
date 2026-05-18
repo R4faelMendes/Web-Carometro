@@ -17,7 +17,7 @@ function Menu() {
 
   const [myClasses, setMyClasses] = useState([]);
   const [loading, setLoading] = useState(false);
-  
+
   const [logs, setLogs] = useState([]);
   const [loadingLogs, setLoadingLogs] = useState(false);
 
@@ -34,10 +34,12 @@ function Menu() {
 
   useEffect(() => {
     const fetchMyClasses = async () => {
+      // CORREÇÃO: chamava api.getClassesByUser() que batia em GET /classes (admin only)
+      // Agora chama api.getAllClasses() que bate em GET /classes/me (acessível a todos)
       if (!isAdmin && token) {
         setLoading(true);
         try {
-          const response = await api.getClassesByUser(); 
+          const response = await api.getAllClasses();
           const data = response.data?.data || [];
           setMyClasses(data);
         } catch (error) {
@@ -58,7 +60,6 @@ function Menu() {
         try {
           const response = await api.getAllLogs();
           const data = response.data?.data || [];
-          // Mantém apenas os 10 últimos registros
           setLogs(data.slice(0, 10));
         } catch (error) {
           console.error("Erro ao carregar logs:", error);
@@ -139,7 +140,7 @@ function Menu() {
                       <Button
                         key={cls.class_id}
                         component={Link}
-                        to={`/class/${cls.class_id}`} 
+                        to={`/classes/${cls.class_id}`}
                         sx={btnStyle}
                       >
                         {cls.class_name} - {cls.course_name}
@@ -177,55 +178,79 @@ function Menu() {
             sx={{ backgroundColor: "#2957A4", width: "2px" }}
           />
 
-          <Box sx={{ width: "45%", height: "70%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-            <Typography variant="h5" sx={{ mb: 2, color: "#2957A4", fontWeight: "bold" }}>
-                 Minhas Noficações
+          <Box
+            sx={{
+              width: "45%",
+              height: "70%",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Typography
+              variant="h5"
+              sx={{ mb: 2, color: "#2957A4", fontWeight: "bold" }}
+            >
+              Minhas Notificações
             </Typography>
 
-            <Box sx={{ 
-              flexGrow: 1, 
-              overflowY: "auto", 
-              pr: 1,
-              "&::-webkit-scrollbar": { width: "5px" },
-              "&::-webkit-scrollbar-thumb": { backgroundColor: "#2957A4", borderRadius: "10px" }
-            }}>
+            <Box
+              sx={{
+                flexGrow: 1,
+                overflowY: "auto",
+                pr: 1,
+                "&::-webkit-scrollbar": { width: "5px" },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "#2957A4",
+                  borderRadius: "10px",
+                },
+              }}
+            >
               {loadingLogs ? (
                 <CircularProgress size={20} />
               ) : isAdmin ? (
-                logs.map((log) => (
-                  <Box 
-                    key={log.log_id} 
-                    sx={{ 
-                      mb: 1.5, 
-                      p: 1.5, 
-                      bgcolor: "#f5f5f5", 
-                      borderRadius: "10px",
-                    }}
-                  >
-                    <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
-                      {log.action_type} em {log.table_name}
-                    </Typography>
-                    <Typography variant="body2">
-                      Alvo: {log.target_name || `ID: ${log.target_id}`}
-                    </Typography>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
-                      <Typography variant="caption" color="text.secondary">
-                        Por: {log.responsible_name}
+                logs.length > 0 ? (
+                  logs.map((log) => (
+                    <Box
+                      key={log.log_id}
+                      sx={{
+                        mb: 1.5,
+                        p: 1.5,
+                        bgcolor: "#f5f5f5",
+                        borderRadius: "10px",
+                      }}
+                    >
+                      <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+                        {log.action_type} em {log.table_name}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {new Date(log.log_date).toLocaleDateString("pt-BR")}
+                      <Typography variant="body2">
+                        Alvo: {log.target_name || `ID: ${log.target_id}`}
                       </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mt: 1,
+                        }}
+                      >
+                        <Typography variant="caption" color="text.secondary">
+                          Por: {log.responsible_name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {new Date(log.log_date).toLocaleDateString("pt-BR")}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                ))
+                  ))
+                ) : (
+                  <Typography variant="body2" color="gray">
+                    Nenhuma atividade recente.
+                  </Typography>
+                )
               ) : (
                 <Typography variant="body2" color="gray">
-                    Você não possui notificações
+                  Você não possui notificações
                 </Typography>
-              )}
-              
-              {isAdmin && logs.length === 0 && !loadingLogs && (
-                <Typography variant="body2" color="gray">Nenhuma atividade recente.</Typography>
               )}
             </Box>
           </Box>
