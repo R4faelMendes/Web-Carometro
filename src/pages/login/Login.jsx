@@ -54,8 +54,8 @@ function Login() {
     try {
       const response = await api.postLogin(user);
 
-      const apiUser = response.data.data;
-      const token = response.data.token;
+      const apiUser = response.data.data.user;   
+      const token = response.data.data.token;    
 
       localStorage.setItem("token", token);
 

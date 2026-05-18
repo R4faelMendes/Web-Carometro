@@ -34,8 +34,6 @@ function Menu() {
 
   useEffect(() => {
     const fetchMyClasses = async () => {
-      // CORREÇÃO: chamava api.getClassesByUser() que batia em GET /classes (admin only)
-      // Agora chama api.getAllClasses() que bate em GET /classes/me (acessível a todos)
       if (!isAdmin && token) {
         setLoading(true);
         try {
