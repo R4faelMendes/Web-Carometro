@@ -17,6 +17,7 @@ import { Edit, Delete } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import api from "../../axios/axios";
 import CustomAlert from "../../components/customAlert/CustomAlert";
+import { useTheme } from "../../components/colors/Colors";
 
 const getAvatarUrl = (name) => {
   const encoded = encodeURIComponent(name?.trim() || "?");
@@ -25,6 +26,7 @@ const getAvatarUrl = (name) => {
 
 function Usuarios() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -64,9 +66,7 @@ function Usuarios() {
   const toggleUserType = async (user) => {
     try {
       const newType = user.user_type === "admin" ? "regular" : "admin";
-
       await api.updateUser(user.user_id, { user_type: newType });
-
       setAlert({ show: true, type: "success", message: "Tipo de usuário atualizado!" });
       fetchUsers();
     } catch (error) {
@@ -85,13 +85,11 @@ function Usuarios() {
 
   const saveEdit = async () => {
     if (!selectedUser) return;
-
     try {
       await api.updateUser(selectedUser.user_id, {
         user_name: selectedUser.user_name,
         user_email: selectedUser.user_email,
       });
-
       setOpenEdit(false);
       setAlert({ show: true, type: "success", message: "Usuário atualizado com sucesso!" });
       fetchUsers();
@@ -133,6 +131,7 @@ function Usuarios() {
   return (
     <LayoutBase>
       <Box sx={{ p: 3 }}>
+        {/* Header */}
         <Box
           sx={{
             display: "flex",
@@ -143,13 +142,14 @@ function Usuarios() {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconButton onClick={() => navigate(-1)}>
+            <IconButton onClick={() => navigate(-1)} sx={{ color: theme.primary }}>
               <ArrowBackIcon />
             </IconButton>
-            <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+            <Typography variant="h5" sx={{ fontWeight: "bold", color: theme.text }}>
               Usuários Cadastrados
             </Typography>
           </Box>
+
           <TextField
             placeholder="Pesquisar usuário..."
             value={search}
@@ -159,8 +159,14 @@ function Usuarios() {
               "& .MuiOutlinedInput-root": {
                 borderRadius: "40px",
                 height: "45px",
-                background: "white",
+                background: theme.contrast,
+                color: theme.text,
+                "& fieldset": { borderColor: theme.primary },
+                "&:hover fieldset": { borderColor: theme.secondary },
+                "&.Mui-focused fieldset": { borderColor: theme.focus },
               },
+              "& input": { color: theme.text },
+              "& input::placeholder": { color: theme.text, opacity: 0.5 },
             }}
           />
         </Box>
@@ -173,16 +179,15 @@ function Usuarios() {
           />
         )}
 
-        <Box sx={{ borderTop: "2px solid black", pt: 1, mb: 4, ml: 6 }}>
-          <Typography variant="body2" sx={{ color: "#666" }}>
+        <Box sx={{ borderTop: `2px solid ${theme.primary}`, pt: 1, mb: 4, ml: 6 }}>
+          <Typography variant="body2" sx={{ color: theme.text, opacity: 0.6 }}>
             Administração de contas e acessos
           </Typography>
         </Box>
 
+        {/* Lista de usuários */}
         {users
-          .filter((u) =>
-            u.user_name.toLowerCase().includes(search.toLowerCase())
-          )
+          .filter((u) => u.user_name.toLowerCase().includes(search.toLowerCase()))
           .map((user) => (
             <Box
               key={user.user_id}
@@ -197,7 +202,8 @@ function Usuarios() {
               <Box
                 sx={{
                   flex: 1,
-                  background: "#eee",
+                  background: theme.contrast,
+                  color: theme.text,
                   borderRadius: "10px",
                   padding: "12px 20px",
                 }}
@@ -205,17 +211,19 @@ function Usuarios() {
                 {user.user_name}
               </Box>
 
+              {/* Toggle admin/regular */}
               <Box
                 onClick={() => toggleUserType(user)}
                 sx={{
                   width: 70,
                   height: 35,
                   borderRadius: "20px",
-                  background: user.user_type === "admin" ? "#111" : "#1976d2",
+                  background: user.user_type === "admin" ? theme.secondary : theme.button,
                   display: "flex",
                   alignItems: "center",
                   padding: "4px",
                   cursor: "pointer",
+                  transition: "background 0.3s ease",
                 }}
               >
                 <Box
@@ -223,11 +231,9 @@ function Usuarios() {
                     width: 28,
                     height: 28,
                     borderRadius: "50%",
-                    background: "white",
+                    background: theme.background,
                     transform:
-                      user.user_type === "admin"
-                        ? "translateX(35px)"
-                        : "translateX(0px)",
+                      user.user_type === "admin" ? "translateX(35px)" : "translateX(0px)",
                     transition: "transform 0.3s ease",
                   }}
                 />
@@ -242,7 +248,7 @@ function Usuarios() {
                   setOpenDelete(true);
                 }}
               >
-                <Delete sx={{ color: "red" }} />
+                <Delete sx={{ color: theme.cancel }} />
               </IconButton>
             </Box>
           ))}
@@ -254,8 +260,11 @@ function Usuarios() {
         onClose={() => setOpenEdit(false)}
         fullWidth
         maxWidth="xs"
+        PaperProps={{
+          sx: { background: theme.background, color: theme.text },
+        }}
       >
-        <DialogTitle>Editar Usuário</DialogTitle>
+        <DialogTitle sx={{ color: theme.text }}>Editar Usuário</DialogTitle>
         <DialogContent>
           {selectedUser && (
             <Box sx={{ display: "flex", justifyContent: "center", mb: 2, mt: 1 }}>
@@ -275,6 +284,7 @@ function Usuarios() {
             onChange={(e) =>
               setSelectedUser({ ...selectedUser, user_name: e.target.value })
             }
+            sx={inputStyle(theme)}
           />
 
           <TextField
@@ -285,6 +295,7 @@ function Usuarios() {
             onChange={(e) =>
               setSelectedUser({ ...selectedUser, user_email: e.target.value })
             }
+            sx={inputStyle(theme)}
           />
 
           <TextField
@@ -293,31 +304,64 @@ function Usuarios() {
             margin="normal"
             value={selectedUser?.user_cpf || ""}
             disabled
+            sx={inputStyle(theme)}
           />
 
           <Button
             variant="contained"
-            color="warning"
             fullWidth
-            sx={{ mt: 2 }}
+            sx={{
+              mt: 2,
+              backgroundColor: theme.button2,
+              color: theme.background,
+              "&:hover": { backgroundColor: theme.secondary },
+            }}
             onClick={handleResetPassword}
           >
             Resetar Senha (E-mail)
           </Button>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenEdit(false)}>Cancelar</Button>
-          <Button onClick={saveEdit} variant="contained">
+          <Button
+            onClick={() => setOpenEdit(false)}
+            sx={{ color: theme.cancel }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={saveEdit}
+            variant="contained"
+            sx={{
+              backgroundColor: theme.primary,
+              color: theme.background,
+              "&:hover": { backgroundColor: theme.secondary },
+            }}
+          >
             Salvar
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
-        <DialogTitle>Confirmar Exclusão</DialogTitle>
+      {/* Modal de Exclusão */}
+      <Dialog
+        open={openDelete}
+        onClose={() => setOpenDelete(false)}
+        PaperProps={{
+          sx: { background: theme.background, color: theme.text },
+        }}
+      >
+        <DialogTitle sx={{ color: theme.text }}>Confirmar Exclusão</DialogTitle>
         <DialogActions>
-          <Button onClick={() => setOpenDelete(false)}>Cancelar</Button>
-          <Button onClick={confirmDelete} color="error">
+          <Button
+            onClick={() => setOpenDelete(false)}
+            sx={{ color: theme.text }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={confirmDelete}
+            sx={{ color: theme.cancel, fontWeight: "bold" }}
+          >
             Excluir
           </Button>
         </DialogActions>
@@ -325,5 +369,23 @@ function Usuarios() {
     </LayoutBase>
   );
 }
+
+const inputStyle = (theme) => ({
+  "& .MuiInputLabel-root": { color: theme.text, opacity: 0.7 },
+  "& .MuiInputLabel-root.Mui-focused": { color: theme.primary },
+  "& .MuiOutlinedInput-root": {
+    color: theme.text,
+    "& fieldset": { borderColor: theme.primary },
+    "&:hover fieldset": { borderColor: theme.secondary },
+    "&.Mui-focused fieldset": { borderColor: theme.focus },
+  },
+  "& .MuiOutlinedInput-root.Mui-disabled": {
+    "& fieldset": { borderColor: theme.contrast },
+  },
+  "& .MuiInputBase-input.Mui-disabled": {
+    WebkitTextFillColor: theme.text,
+    opacity: 0.4,
+  },
+});
 
 export default Usuarios;

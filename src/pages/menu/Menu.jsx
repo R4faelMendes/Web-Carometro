@@ -11,9 +11,11 @@ import {
 } from "@mui/material";
 import LayoutBase from "../../components/layoutBase/LayoutBase";
 import api from "../../axios/axios";
+import { useTheme } from "../../components/colors/Colors";
 
 function Menu() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const [myClasses, setMyClasses] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -76,6 +78,18 @@ function Menu() {
     navigate("/");
   };
 
+  const btnStyle = {
+    borderRadius: "20px",
+    height: 45,
+    backgroundColor: theme.button2,
+    color: theme.background,
+    textTransform: "none",
+    fontWeight: "bold",
+    "&:hover": {
+      backgroundColor: theme.secondary,
+    },
+  };
+
   return (
     <LayoutBase>
       <Container maxWidth="lg">
@@ -87,20 +101,28 @@ function Menu() {
             justifyContent: "space-between",
           }}
         >
+          {/* Lado esquerdo: perfil + ações */}
           <Box sx={{ width: "45%" }}>
             {/* Perfil do Usuário */}
             <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
-              <Avatar sx={{ width: 60, height: 60, mr: 2 }}>
+              <Avatar
+                sx={{
+                  width: 60,
+                  height: 60,
+                  mr: 2,
+                  backgroundColor: theme.primary,
+                  color: theme.background,
+                }}
+              >
                 {user?.name?.[0]}
               </Avatar>
               <Box>
-                <Typography variant="h6">
+                <Typography variant="h6" sx={{ color: theme.text }}>
                   Olá, {user?.name || "Usuário"}
                 </Typography>
                 <Typography
                   variant="body2"
-                  color="text.secondary"
-                  sx={{ textTransform: "capitalize" }}
+                  sx={{ color: theme.text, opacity: 0.6, textTransform: "capitalize" }}
                 >
                   {user?.user_type || "Sem cargo"}
                 </Typography>
@@ -131,7 +153,7 @@ function Menu() {
                 <>
                   {loading ? (
                     <Box sx={{ display: "flex", justifyContent: "center" }}>
-                      <CircularProgress size={24} />
+                      <CircularProgress size={24} sx={{ color: theme.primary }} />
                     </Box>
                   ) : myClasses.length > 0 ? (
                     myClasses.map((cls) => (
@@ -147,8 +169,7 @@ function Menu() {
                   ) : (
                     <Typography
                       variant="body2"
-                      color="gray"
-                      textAlign="center"
+                      sx={{ color: theme.text, opacity: 0.5, textAlign: "center" }}
                     >
                       Nenhuma turma vinculada a você.
                     </Typography>
@@ -161,8 +182,11 @@ function Menu() {
                 onClick={logout}
                 sx={{
                   ...btnStyle,
-                  backgroundColor: "#d32f2f",
-                  "&:hover": { backgroundColor: "#b71c1c" },
+                  backgroundColor: theme.cancel,
+                  "&:hover": {
+                    filter: "brightness(0.85)",
+                    backgroundColor: theme.cancel,
+                  },
                 }}
               >
                 Sair
@@ -170,12 +194,14 @@ function Menu() {
             </Box>
           </Box>
 
+          {/* Divisor */}
           <Divider
             orientation="vertical"
             flexItem
-            sx={{ backgroundColor: "#2957A4", width: "2px" }}
+            sx={{ backgroundColor: theme.primary, width: "2px" }}
           />
 
+          {/* Lado direito: notificações */}
           <Box
             sx={{
               width: "45%",
@@ -187,7 +213,7 @@ function Menu() {
           >
             <Typography
               variant="h5"
-              sx={{ mb: 2, color: "#2957A4", fontWeight: "bold" }}
+              sx={{ mb: 2, color: theme.primary, fontWeight: "bold" }}
             >
               Minhas Notificações
             </Typography>
@@ -199,13 +225,13 @@ function Menu() {
                 pr: 1,
                 "&::-webkit-scrollbar": { width: "5px" },
                 "&::-webkit-scrollbar-thumb": {
-                  backgroundColor: "#2957A4",
+                  backgroundColor: theme.primary,
                   borderRadius: "10px",
                 },
               }}
             >
               {loadingLogs ? (
-                <CircularProgress size={20} />
+                <CircularProgress size={20} sx={{ color: theme.primary }} />
               ) : isAdmin ? (
                 logs.length > 0 ? (
                   logs.map((log) => (
@@ -214,14 +240,17 @@ function Menu() {
                       sx={{
                         mb: 1.5,
                         p: 1.5,
-                        bgcolor: "#f5f5f5",
+                        bgcolor: theme.contrast,
                         borderRadius: "10px",
                       }}
                     >
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ fontWeight: "bold", color: theme.text }}
+                      >
                         {log.action_type} em {log.table_name}
                       </Typography>
-                      <Typography variant="body2">
+                      <Typography variant="body2" sx={{ color: theme.text }}>
                         Alvo: {log.target_name || `ID: ${log.target_id}`}
                       </Typography>
                       <Box
@@ -231,22 +260,28 @@ function Menu() {
                           mt: 1,
                         }}
                       >
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography
+                          variant="caption"
+                          sx={{ color: theme.text, opacity: 0.6 }}
+                        >
                           Por: {log.responsible_name}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography
+                          variant="caption"
+                          sx={{ color: theme.text, opacity: 0.6 }}
+                        >
                           {new Date(log.log_date).toLocaleDateString("pt-BR")}
                         </Typography>
                       </Box>
                     </Box>
                   ))
                 ) : (
-                  <Typography variant="body2" color="gray">
+                  <Typography variant="body2" sx={{ color: theme.text, opacity: 0.5 }}>
                     Nenhuma atividade recente.
                   </Typography>
                 )
               ) : (
-                <Typography variant="body2" color="gray">
+                <Typography variant="body2" sx={{ color: theme.text, opacity: 0.5 }}>
                   Você não possui notificações
                 </Typography>
               )}
@@ -257,17 +292,5 @@ function Menu() {
     </LayoutBase>
   );
 }
-
-const btnStyle = {
-  borderRadius: "20px",
-  height: 45,
-  backgroundColor: "#2957A4",
-  color: "white",
-  textTransform: "none",
-  fontWeight: "bold",
-  "&:hover": {
-    backgroundColor: "#1e3f7a",
-  },
-};
 
 export default Menu;

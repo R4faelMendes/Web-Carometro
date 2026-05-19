@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/carometro",
+  baseURL: "http://10.89.240.37:5000/carometro",
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -50,7 +50,7 @@ const apiService = {
   getAllClasses: () => api.get("/classes/me"),
 
   // STUDENTS
-  getStudentsByClass: (classId) => api.get(`/students/${classId}`),
+  getStudentsByClass: (classId) => api.get(`/students/class/${classId}`),
   postStudent: (data) => api.post("/students", data),
   readAllStudents: () => api.get("/students"),
   updateStudent: (id, data) => api.patch(`/students/${id}`, data),

@@ -12,10 +12,12 @@ import {
 import LayoutBase from "../../components/layoutBase/LayoutBase";
 import api from "../../axios/axios";
 import CustomAlert from "../../components/customAlert/CustomAlert";
+import { useTheme } from "../../components/colors/Colors";
 
 function Student() {
     const navigate = useNavigate();
     const { studentId } = useParams();
+    const { theme } = useTheme();
 
     const user = JSON.parse(localStorage.getItem("user"));
     const isAdmin = user?.user_type?.toLowerCase() === "admin";
@@ -40,7 +42,6 @@ function Student() {
     const fetchData = useCallback(async () => {
         try {
             setLoading(true);
-
             const studentsRes = await api.readAllStudents();
             const allStudents = studentsRes.data?.data || [];
             const currentStudent = allStudents.find(s => s.student_id === parseInt(studentId));
@@ -57,18 +58,16 @@ function Student() {
             try {
                 const classesRes = await api.getAllClasses();
                 setClasses(classesRes.data?.data || []);
-            } catch (classError) {
-                console.warn("Usuário não tem permissão para listar todas as turmas.");
+            } catch {
                 setClasses([]);
             }
-
         } catch (error) {
-            console.error("Erro ao carregar estudante:", error);
             setAlert({ show: true, type: "error", message: "Erro ao carregar dados do aluno." });
         } finally {
             setLoading(false);
         }
     }, [studentId]);
+
     const fetchIncidents = useCallback(async () => {
         try {
             const res = await api.getIncidentsByStudentId(studentId);
@@ -94,7 +93,7 @@ function Student() {
             setAlert({ show: true, type: "success", message: "Aluno atualizado!" });
             setOpenEdit(false);
             fetchData();
-        } catch (e) {
+        } catch {
             setAlert({ show: true, type: "error", message: "Erro ao atualizar." });
         }
     };
@@ -105,15 +104,12 @@ function Student() {
             return;
         }
         try {
-            await api.createIncident({
-                ...incidentData,
-                fk_student_id: studentId
-            });
+            await api.createIncident({ ...incidentData, fk_student_id: studentId });
             setAlert({ show: true, type: "success", message: "Ocorrência registrada!" });
             setOpenIncident(false);
             setIncidentData({ incident_type: "", incident_description: "" });
             fetchIncidents();
-        } catch (e) {
+        } catch {
             setAlert({ show: true, type: "error", message: "Erro ao registrar ocorrência." });
         }
     };
@@ -123,7 +119,7 @@ function Student() {
             await api.deleteStudent(studentId);
             setAlert({ show: true, type: "success", message: "Aluno removido!" });
             setTimeout(() => navigate(-1), 1500);
-        } catch (e) {
+        } catch {
             setAlert({ show: true, type: "error", message: "Erro ao remover." });
         }
     };
@@ -134,7 +130,7 @@ function Student() {
             setOpenDeleteIncident(false);
             setAlert({ show: true, type: "success", message: "Ocorrência deletada!" });
             fetchIncidents();
-        } catch (err) {
+        } catch {
             setAlert({ show: true, type: "error", message: "Erro ao deletar" });
         }
     };
@@ -148,92 +144,149 @@ function Student() {
             setOpenEditIncident(false);
             setAlert({ show: true, type: "success", message: "Ocorrência atualizada!" });
             fetchIncidents();
-        } catch (err) {
+        } catch {
             setAlert({ show: true, type: "error", message: "Erro ao atualizar" });
         }
     };
 
     const smallButtonStyle = {
-        fontSize: '0.65rem',
-        padding: '4px 10px',
-        minWidth: '140px',
-        textTransform: 'none',
-        borderRadius: '6px',
-        fontWeight: 'bold'
+        fontSize: "0.65rem",
+        padding: "4px 10px",
+        minWidth: "140px",
+        textTransform: "none",
+        borderRadius: "6px",
+        fontWeight: "bold",
+        backgroundColor: theme.primary,
+        color: theme.background,
+        "&:hover": { backgroundColor: theme.secondary },
     };
 
+    const inputStyle = {
+        "& .MuiOutlinedInput-root": {
+            color: theme.text,
+            "& fieldset": { borderColor: theme.primary },
+            "&:hover fieldset": { borderColor: theme.secondary },
+            "&.Mui-focused fieldset": { borderColor: theme.focus },
+        },
+        "& .MuiInputLabel-root": { color: theme.text, opacity: 0.7 },
+        "& .MuiInputLabel-root.Mui-focused": { color: theme.primary },
+        "& textarea": { color: theme.text },
+    };
 
+    const dialogProps = {
+        PaperProps: { sx: { background: theme.background, color: theme.text } },
+    };
 
     return (
         <LayoutBase>
             <Box sx={{ p: { xs: 2, md: 2 } }}>
+                {/* Header */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
-                    <IconButton onClick={() => navigate(-1)} sx={{ border: '2px solid black', p: 0.5 }}>
+                    <IconButton
+                        onClick={() => navigate(-1)}
+                        sx={{ border: `2px solid ${theme.primary}`, p: 0.5, color: theme.primary }}
+                    >
                         <ArrowBackIcon fontSize="small" />
                     </IconButton>
-                    <Typography variant="h6" sx={{ fontWeight: "bold", textDecoration: 'underline' }}>
+                    <Typography variant="h6" sx={{ fontWeight: "bold", textDecoration: "underline", color: theme.text }}>
                         Detalhes do Aluno
                     </Typography>
                 </Box>
 
-                {alert.show && <CustomAlert type={alert.type} message={alert.message} onClose={() => setAlert({ ...alert, show: false })} />}
+                {alert.show && (
+                    <CustomAlert type={alert.type} message={alert.message} onClose={() => setAlert({ ...alert, show: false })} />
+                )}
 
                 <Grid container spacing={2} sx={{ mt: 2 }}>
+                    {/* Coluna esquerda: avatar + botões */}
                     <Grid item xs={12} md={3}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center' }}>
-                            <Box sx={{ bgcolor: '#2b58a1', py: 1, px: 1, borderRadius: 2, textAlign: 'center', width: '180px' }}>
-                                <Avatar variant="square" sx={{ width: '100%', height: 130, mb: 1, borderRadius: 1, bgcolor: 'white' }} />
-                                <Typography sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.8rem' }}>ALUNO</Typography>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, alignItems: "center" }}>
+                            <Box sx={{ bgcolor: theme.primary, py: 1, px: 1, borderRadius: 2, textAlign: "center", width: "180px" }}>
+                                <Avatar
+                                    variant="square"
+                                    sx={{ width: "100%", height: 130, mb: 1, borderRadius: 1, bgcolor: theme.contrast }}
+                                />
+                                <Typography sx={{ color: theme.background, fontWeight: "bold", fontSize: "0.8rem" }}>
+                                    ALUNO
+                                </Typography>
                             </Box>
+
                             {isAdmin && (
-                                <Button variant="contained" sx={{ ...smallButtonStyle, bgcolor: '#3b6bb8' }} onClick={() => setOpenEdit(true)}>
+                                <Button variant="contained" sx={smallButtonStyle} onClick={() => setOpenEdit(true)}>
                                     Atualizar Perfil
                                 </Button>
                             )}
-                            <Button variant="contained" sx={{ ...smallButtonStyle, bgcolor: '#3b6bb8' }} onClick={() => setOpenIncident(true)}>
+                            <Button variant="contained" sx={smallButtonStyle} onClick={() => setOpenIncident(true)}>
                                 Registrar Ocorrência
                             </Button>
                             {isAdmin && (
-                                <Button variant="contained" sx={{ ...smallButtonStyle, bgcolor: '#942609', mt: 2 }} onClick={() => setOpenDelete(true)}>
+                                <Button
+                                    variant="contained"
+                                    sx={{
+                                        ...smallButtonStyle,
+                                        mt: 2,
+                                        backgroundColor: theme.cancel,
+                                        "&:hover": { filter: "brightness(0.85)", backgroundColor: theme.cancel },
+                                    }}
+                                    onClick={() => setOpenDelete(true)}
+                                >
                                     Remover Aluno
                                 </Button>
                             )}
                         </Box>
                     </Grid>
 
+                    {/* Coluna direita: informações */}
                     <Grid item xs={12} md={9}>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, textAlign: 'center' }}>INFORMAÇÕES ALUNO</Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                            <Paper variant="outlined" sx={{ py: 1.2, px: 30, borderRadius: 2 }}>
-                                <Typography><b>ALUNO :</b> {student?.student_name}</Typography>
-                            </Paper>
-                            <Paper variant="outlined" sx={{ py: 1.2, px: 30, borderRadius: 2 }}>
-                                <Typography><b>TURMA :</b> {getClassName(student?.fk_class_id)}</Typography>
-                            </Paper>
-                            <Paper variant="outlined" sx={{ py: 1.2, px: 30, borderRadius: 2 }}>
-                                <Typography><b>CPF :</b> {student?.student_cpf}</Typography>
-                            </Paper>
+                        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, textAlign: "center", color: theme.text }}>
+                            INFORMAÇÕES ALUNO
+                        </Typography>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                            {[
+                                { label: "ALUNO", value: student?.student_name },
+                                { label: "TURMA", value: getClassName(student?.fk_class_id) },
+                                { label: "CPF", value: student?.student_cpf },
+                            ].map(({ label, value }) => (
+                                <Paper
+                                    key={label}
+                                    variant="outlined"
+                                    sx={{
+                                        py: 1.2,
+                                        px: 3,
+                                        borderRadius: 2,
+                                        bgcolor: theme.contrast,
+                                        borderColor: theme.primary,
+                                    }}
+                                >
+                                    <Typography sx={{ color: theme.text }}>
+                                        <b style={{ color: theme.primary }}>{label} : </b>{value}
+                                    </Typography>
+                                </Paper>
+                            ))}
                         </Box>
                     </Grid>
                 </Grid>
 
+                {/* Ocorrências */}
                 <Box sx={{ mt: 4 }}>
-                    <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                    <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold", color: theme.text }}>
                         Ocorrências
                     </Typography>
 
                     {incidents.length === 0 ? (
-                        <Typography>Nenhuma ocorrência encontrada.</Typography>
+                        <Typography sx={{ color: theme.text, opacity: 0.5 }}>
+                            Nenhuma ocorrência encontrada.
+                        </Typography>
                     ) : (
                         <Box
                             sx={{
-                                display: 'flex',
-                                flexDirection: 'row', // Alinha em linha (horizontal)
+                                display: "flex",
+                                flexDirection: "row",
                                 gap: 2,
-                                overflowX: 'auto', // Adiciona scroll se houver muitos cards
-                                pb: 2, // Espaço para não cortar a sombra no scroll
-                                '&::-webkit-scrollbar': { height: '8px' }, // Customização da barra de rolagem
-                                '&::-webkit-scrollbar-thumb': { bgcolor: '#ccc', borderRadius: '4px' }
+                                overflowX: "auto",
+                                pb: 2,
+                                "&::-webkit-scrollbar": { height: "8px" },
+                                "&::-webkit-scrollbar-thumb": { bgcolor: theme.primary, borderRadius: "4px" },
                             }}
                         >
                             {incidents.map((item) => (
@@ -242,37 +295,31 @@ function Student() {
                                     variant="outlined"
                                     sx={{
                                         p: 2,
-                                        width: '200px',
-                                        height: '150px',
-                                        flexShrink: 0, // Impede que o card amasse
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        justifyContent: 'space-between',
+                                        width: "200px",
+                                        height: "150px",
+                                        flexShrink: 0,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "space-between",
                                         borderRadius: 2,
-                                        bgcolor: '#f9f9f9'
+                                        bgcolor: theme.contrast,
+                                        borderColor: theme.primary,
                                     }}
                                 >
-                                    <Box sx={{ overflowY: 'auto' }}>
-                                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#2b58a1' }}>
+                                    <Box sx={{ overflowY: "auto" }}>
+                                        <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: theme.primary }}>
                                             {item.incident_type}
                                         </Typography>
-                                        <Typography variant="body2" sx={{ mt: 1, wordBreak: 'break-word' }}>
+                                        <Typography variant="body2" sx={{ mt: 1, wordBreak: "break-word", color: theme.text }}>
                                             {item.incident_description}
                                         </Typography>
                                     </Box>
-
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5, mt: 1, pt: 1, borderTop: '1px solid #eee' }}>
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => { setSelected(item); setOpenEditIncident(true); }}
-                                        >
+                                    <Box sx={{ display: "flex", justifyContent: "center", gap: 0.5, mt: 1, pt: 1, borderTop: `1px solid ${theme.primary}33` }}>
+                                        <IconButton size="small" onClick={() => { setSelected(item); setOpenEditIncident(true); }}>
                                             <EditIcon fontSize="small" sx={{ color: "#c9b037" }} />
                                         </IconButton>
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => { setSelected(item); setOpenDeleteIncident(true); }}
-                                        >
-                                            <DeleteIcon fontSize="small" sx={{ color: "red" }} />
+                                        <IconButton size="small" onClick={() => { setSelected(item); setOpenDeleteIncident(true); }}>
+                                            <DeleteIcon fontSize="small" sx={{ color: theme.cancel }} />
                                         </IconButton>
                                     </Box>
                                 </Paper>
@@ -283,66 +330,109 @@ function Student() {
             </Box>
 
             {/* Modal: Editar Aluno */}
-            <Dialog open={openEdit} onClose={() => setOpenEdit(false)} fullWidth maxWidth="xs">
-                <DialogTitle>Editar Aluno</DialogTitle>
-                <DialogContent dividers>
-                    <TextField fullWidth label="Nome" margin="dense" value={editData.student_name} onChange={(e) => setEditData({ ...editData, student_name: e.target.value })} />
-                    <TextField fullWidth label="CPF" margin="dense" value={editData.student_cpf} onChange={(e) => setEditData({ ...editData, student_cpf: e.target.value })} />
-                    <TextField select fullWidth label="Turma" margin="dense" value={editData.fk_class_id} onChange={(e) => setEditData({ ...editData, fk_class_id: e.target.value })}>
+            <Dialog open={openEdit} onClose={() => setOpenEdit(false)} fullWidth maxWidth="xs" {...dialogProps}>
+                <DialogTitle sx={{ color: theme.text }}>Editar Aluno</DialogTitle>
+                <DialogContent dividers sx={{ borderColor: theme.primary + "44" }}>
+                    <TextField fullWidth label="Nome" margin="dense" value={editData.student_name}
+                        onChange={(e) => setEditData({ ...editData, student_name: e.target.value })} sx={inputStyle} />
+                    <TextField fullWidth label="CPF" margin="dense" value={editData.student_cpf}
+                        onChange={(e) => setEditData({ ...editData, student_cpf: e.target.value })} sx={inputStyle} />
+                    <TextField select fullWidth label="Turma" margin="dense" value={editData.fk_class_id}
+                        onChange={(e) => setEditData({ ...editData, fk_class_id: e.target.value })}
+                        sx={inputStyle}
+                        SelectProps={{
+                            MenuProps: {
+                                PaperProps: {
+                                    sx: {
+                                        background: theme.background,
+                                        color: theme.text,
+                                        "& .MuiMenuItem-root:hover": { background: theme.contrast },
+                                    },
+                                },
+                            },
+                        }}
+                    >
                         {classes.map((c) => (
-                            <MenuItem key={c.class_id} value={c.class_id}>{c.class_name}</MenuItem>
+                            <MenuItem key={c.class_id} value={c.class_id} sx={{ color: theme.text }}>
+                                {c.class_name}
+                            </MenuItem>
                         ))}
                     </TextField>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenEdit(false)}>Cancelar</Button>
-                    <Button onClick={handleUpdateStudent} variant="contained">Salvar</Button>
+                    <Button onClick={() => setOpenEdit(false)} sx={{ color: theme.cancel }}>Cancelar</Button>
+                    <Button onClick={handleUpdateStudent} variant="contained"
+                        sx={{ backgroundColor: theme.primary, color: theme.background, "&:hover": { backgroundColor: theme.secondary } }}>
+                        Salvar
+                    </Button>
                 </DialogActions>
             </Dialog>
 
             {/* Modal: Criar Ocorrência */}
-            <Dialog open={openIncident} onClose={() => setOpenIncident(false)} fullWidth maxWidth="xs">
-                <DialogTitle>Registrar Ocorrência</DialogTitle>
-                <DialogContent dividers>
-                    <TextField fullWidth label="Tipo" margin="dense" value={incidentData.incident_type} onChange={(e) => setIncidentData({ ...incidentData, incident_type: e.target.value })} />
-                    <TextField fullWidth multiline rows={3} label="Descrição" margin="dense" value={incidentData.incident_description} onChange={(e) => setIncidentData({ ...incidentData, incident_description: e.target.value })} />
+            <Dialog open={openIncident} onClose={() => setOpenIncident(false)} fullWidth maxWidth="xs" {...dialogProps}>
+                <DialogTitle sx={{ color: theme.text }}>Registrar Ocorrência</DialogTitle>
+                <DialogContent dividers sx={{ borderColor: theme.primary + "44" }}>
+                    <TextField fullWidth label="Tipo" margin="dense" value={incidentData.incident_type}
+                        onChange={(e) => setIncidentData({ ...incidentData, incident_type: e.target.value })} sx={inputStyle} />
+                    <TextField fullWidth multiline rows={3} label="Descrição" margin="dense" value={incidentData.incident_description}
+                        onChange={(e) => setIncidentData({ ...incidentData, incident_description: e.target.value })} sx={inputStyle} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenIncident(false)}>Cancelar</Button>
-                    <Button onClick={handleCreateIncident} variant="contained">Registrar</Button>
+                    <Button onClick={() => setOpenIncident(false)} sx={{ color: theme.cancel }}>Cancelar</Button>
+                    <Button onClick={handleCreateIncident} variant="contained"
+                        sx={{ backgroundColor: theme.primary, color: theme.background, "&:hover": { backgroundColor: theme.secondary } }}>
+                        Registrar
+                    </Button>
                 </DialogActions>
             </Dialog>
 
             {/* Modal: Editar Ocorrência */}
-            <Dialog open={openEditIncident} onClose={() => setOpenEditIncident(false)} fullWidth maxWidth="xs">
-                <DialogTitle>Editar Ocorrência</DialogTitle>
-                <DialogContent dividers>
-                    <TextField fullWidth label="Tipo" margin="dense" value={selected?.incident_type || ""} onChange={(e) => setSelected({ ...selected, incident_type: e.target.value })} />
-                    <TextField fullWidth multiline rows={4} label="Descrição" margin="dense" value={selected?.incident_description || ""} onChange={(e) => setSelected({ ...selected, incident_description: e.target.value })} />
+            <Dialog open={openEditIncident} onClose={() => setOpenEditIncident(false)} fullWidth maxWidth="xs" {...dialogProps}>
+                <DialogTitle sx={{ color: theme.text }}>Editar Ocorrência</DialogTitle>
+                <DialogContent dividers sx={{ borderColor: theme.primary + "44" }}>
+                    <TextField fullWidth label="Tipo" margin="dense" value={selected?.incident_type || ""}
+                        onChange={(e) => setSelected({ ...selected, incident_type: e.target.value })} sx={inputStyle} />
+                    <TextField fullWidth multiline rows={4} label="Descrição" margin="dense" value={selected?.incident_description || ""}
+                        onChange={(e) => setSelected({ ...selected, incident_description: e.target.value })} sx={inputStyle} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenEditIncident(false)}>Cancelar</Button>
-                    <Button onClick={saveEditIncident} variant="contained">Salvar</Button>
+                    <Button onClick={() => setOpenEditIncident(false)} sx={{ color: theme.cancel }}>Cancelar</Button>
+                    <Button onClick={saveEditIncident} variant="contained"
+                        sx={{ backgroundColor: theme.primary, color: theme.background, "&:hover": { backgroundColor: theme.secondary } }}>
+                        Salvar
+                    </Button>
                 </DialogActions>
             </Dialog>
 
             {/* Modal: Deletar Ocorrência */}
-            <Dialog open={openDeleteIncident} onClose={() => setOpenDeleteIncident(false)}>
-                <DialogTitle>Deletar Ocorrência</DialogTitle>
-                <DialogContent>Tem certeza que deseja excluir esta ocorrência?</DialogContent>
+            <Dialog open={openDeleteIncident} onClose={() => setOpenDeleteIncident(false)} {...dialogProps}>
+                <DialogTitle sx={{ color: theme.text }}>Deletar Ocorrência</DialogTitle>
+                <DialogContent>
+                    <Typography sx={{ color: theme.text }}>Tem certeza que deseja excluir esta ocorrência?</Typography>
+                </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDeleteIncident(false)}>Cancelar</Button>
-                    <Button onClick={confirmDeleteIncident} color="error" variant="contained">Excluir</Button>
+                    <Button onClick={() => setOpenDeleteIncident(false)} sx={{ color: theme.text }}>Cancelar</Button>
+                    <Button onClick={confirmDeleteIncident} variant="contained"
+                        sx={{ backgroundColor: theme.cancel, color: theme.background, "&:hover": { filter: "brightness(0.85)", backgroundColor: theme.cancel } }}>
+                        Excluir
+                    </Button>
                 </DialogActions>
             </Dialog>
 
             {/* Modal: Deletar Aluno */}
-            <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
-                <DialogTitle>Remover Aluno</DialogTitle>
-                <DialogContent>Confirmar a exclusão de {student?.student_name}?</DialogContent>
+            <Dialog open={openDelete} onClose={() => setOpenDelete(false)} {...dialogProps}>
+                <DialogTitle sx={{ color: theme.text }}>Remover Aluno</DialogTitle>
+                <DialogContent>
+                    <Typography sx={{ color: theme.text }}>
+                        Confirmar a exclusão de {student?.student_name}?
+                    </Typography>
+                </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDelete(false)}>Sair</Button>
-                    <Button onClick={handleDeleteStudent} color="error" variant="contained">Excluir</Button>
+                    <Button onClick={() => setOpenDelete(false)} sx={{ color: theme.text }}>Sair</Button>
+                    <Button onClick={handleDeleteStudent} variant="contained"
+                        sx={{ backgroundColor: theme.cancel, color: theme.background, "&:hover": { filter: "brightness(0.85)", backgroundColor: theme.cancel } }}>
+                        Excluir
+                    </Button>
                 </DialogActions>
             </Dialog>
         </LayoutBase>
