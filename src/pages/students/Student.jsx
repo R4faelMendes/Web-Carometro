@@ -2,12 +2,13 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
     Box, Typography, IconButton, Button, CircularProgress, Avatar, Grid, Paper,
-    Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem
+    Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Tooltip
 } from "@mui/material";
 import {
     ArrowBack as ArrowBackIcon,
     Edit as EditIcon,
-    Delete as DeleteIcon
+    Delete as DeleteIcon,
+    PictureAsPdf as PictureAsPdfIcon,
 } from "@mui/icons-material";
 import LayoutBase from "../../components/layoutBase/LayoutBase";
 import api from "../../axios/axios";
@@ -149,6 +150,86 @@ function Student() {
         }
     };
 
+    const handleExportPdf = async () => {
+        try {
+            const { default: jsPDF } = await import("https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm");
+
+            const doc = new jsPDF();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 14;
+            let y = 20;
+
+            const studentName = student?.student_name || "Aluno";
+
+            // Título com nome do aluno
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text(`Ocorrências - ${studentName}`, pageWidth / 2, y, { align: "center" });
+            y += 8;
+
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(120);
+            doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, pageWidth / 2, y, { align: "center" });
+            doc.setTextColor(0);
+            y += 10;
+
+            // Linha separadora
+            doc.setDrawColor(41, 87, 164);
+            doc.setLineWidth(0.5);
+            doc.line(margin, y, pageWidth - margin, y);
+            y += 8;
+
+            incidents.forEach((item, index) => {
+                if (y > 260) {
+                    doc.addPage();
+                    y = 20;
+                }
+
+                // Cabeçalho do card
+                doc.setFillColor(41, 87, 164);
+                doc.roundedRect(margin, y, pageWidth - margin * 2, 7, 1, 1, "F");
+                doc.setFontSize(9);
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(255);
+                doc.text(`#${index + 1}  ${item.incident_type}`, margin + 3, y + 5);
+                doc.setTextColor(0);
+                y += 10;
+
+                // Campos
+                const fields = [
+                    { label: "Aluno", value: studentName },
+                    { label: "Data", value: item.incident_date?.split("T")[0] || "—" },
+                    { label: "Descrição", value: item.incident_description || "—" },
+                ];
+
+                doc.setFontSize(9);
+                fields.forEach(({ label, value }) => {
+                    if (y > 270) { doc.addPage(); y = 20; }
+                    doc.setFont("helvetica", "bold");
+                    doc.text(`${label}:`, margin + 2, y);
+                    doc.setFont("helvetica", "normal");
+                    const lines = doc.splitTextToSize(value, pageWidth - margin * 2 - 28);
+                    doc.text(lines, margin + 28, y);
+                    y += lines.length * 5 + 1;
+                });
+
+                y += 5;
+
+                // Linha divisória entre cards
+                doc.setDrawColor(200);
+                doc.setLineWidth(0.2);
+                doc.line(margin, y, pageWidth - margin, y);
+                y += 6;
+            });
+
+            doc.save(`ocorrencias_${studentName}.pdf`);
+        } catch (err) {
+            console.error("Erro ao gerar PDF:", err);
+            setAlert({ show: true, type: "error", message: "Erro ao gerar PDF" });
+        }
+    };
+
     const smallButtonStyle = {
         fontSize: "0.65rem",
         padding: "4px 10px",
@@ -219,6 +300,18 @@ function Student() {
                             <Button variant="contained" sx={smallButtonStyle} onClick={() => setOpenIncident(true)}>
                                 Registrar Ocorrência
                             </Button>
+                            {incidents.length > 0 && (
+                                <Tooltip title="Exportar PDF">
+                                    <Button
+                                        variant="contained"
+                                        startIcon={<PictureAsPdfIcon />}
+                                        sx={smallButtonStyle}
+                                        onClick={handleExportPdf}
+                                    >
+                                        Exportar PDF
+                                    </Button>
+                                </Tooltip>
+                            )}
                             {isAdmin && (
                                 <Button
                                     variant="contained"

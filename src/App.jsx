@@ -10,8 +10,8 @@ import ListClass from "./pages/listClass/ListClass";
 import RegisterCourse from "./pages/registerCourse/RegisterCourse";
 import StudentsList from "./pages/listStudents/ListStudents";
 import RegisterStudent from "./pages/registerStudents/RegisterStudents";
-import Incidents from "./pages/listincidents/ListIncidents";
-import Student from "./pages/Student/Student";
+import Incidents from "./pages/listIncidents/ListIncidents";
+import Student from "./pages/Students/Student";
 
 import { ThemeProvider } from "./components/colors/Colors";
 
