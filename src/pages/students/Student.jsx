@@ -9,10 +9,10 @@ import {
     Edit as EditIcon,
     Delete as DeleteIcon
 } from "@mui/icons-material";
-import LayoutBase from "../src/components/layoutBase/LayoutBase";
-import api from "../src/axios/axios";
-import CustomAlert from "../src/components/customAlert/CustomAlert";
-import { useTheme } from "../src/components/colors/Colors";
+import LayoutBase from "../../components/layoutBase/LayoutBase";
+import api from "../../axios/axios";
+import CustomAlert from "../../components/customAlert/CustomAlert";
+import { useTheme } from "../../components/colors/Colors";
 
 function Student() {
     const navigate = useNavigate();
