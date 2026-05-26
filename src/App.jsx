@@ -11,7 +11,7 @@ import RegisterCourse from "./pages/registerCourse/RegisterCourse";
 import StudentsList from "./pages/listStudents/ListStudents";
 import RegisterStudent from "./pages/registerStudents/RegisterStudents";
 import Incidents from "./pages/listIncidents/ListIncidents";
-import Student from "./pages/Students/Student";
+import Student from "./pages/students/Student";
 
 import { ThemeProvider } from "./components/colors/Colors";
 
