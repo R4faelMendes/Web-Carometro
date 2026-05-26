@@ -20,7 +20,7 @@ import {
   Delete,
   PictureAsPdf as PictureAsPdfIcon,
 } from "@mui/icons-material";
-
+import generateGeneralIncidentsPdf from "../../components/allIncidentsTemplate/AllIncidentsTemplate";
 import LayoutBase from "../../components/layoutBase/LayoutBase";
 import api from "../../axios/axios";
 import CustomAlert from "../../components/customAlert/CustomAlert";
@@ -77,87 +77,30 @@ function Incidents() {
     }
   };
 
-  const handleExportPdf = async () => {
-    try {
-      const { default: jsPDF } = await import("https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm");
-
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const margin = 14;
-      let y = 20;
-
-      // Título
-      doc.setFontSize(16);
-      doc.setFont("helvetica", "bold");
-      doc.text("Histórico de Ocorrências", pageWidth / 2, y, { align: "center" });
-      y += 8;
-
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(120);
-      doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, pageWidth / 2, y, { align: "center" });
-      doc.setTextColor(0);
-      y += 10;
-
-      // Linha separadora
-      doc.setDrawColor(41, 87, 164);
-      doc.setLineWidth(0.5);
-      doc.line(margin, y, pageWidth - margin, y);
-      y += 8;
-
-      const data = filtered.length > 0 ? filtered : incidents;
-
-      data.forEach((item, index) => {
-        // Checar se precisa de nova página
-        if (y > 260) {
-          doc.addPage();
-          y = 20;
-        }
-
-        // Cabeçalho do card
-        doc.setFillColor(41, 87, 164);
-        doc.roundedRect(margin, y, pageWidth - margin * 2, 7, 1, 1, "F");
-        doc.setFontSize(9);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(255);
-        doc.text(`#${index + 1}  ${item.incident_type}`, margin + 3, y + 5);
-        doc.setTextColor(0);
-        y += 10;
-
-        // Campos
-        const fields = [
-          { label: "Aluno", value: item.student_name || "—" },
-          { label: "Docente", value: item.user_name || "—" },
-          { label: "Data", value: item.incident_date?.split("T")[0] || "—" },
-          { label: "Descrição", value: item.incident_description || "—" },
-        ];
-
-        doc.setFontSize(9);
-        fields.forEach(({ label, value }) => {
-          if (y > 270) { doc.addPage(); y = 20; }
-          doc.setFont("helvetica", "bold");
-          doc.text(`${label}:`, margin + 2, y);
-          doc.setFont("helvetica", "normal");
-          const lines = doc.splitTextToSize(value, pageWidth - margin * 2 - 28);
-          doc.text(lines, margin + 28, y);
-          y += lines.length * 5 + 1;
-        });
-
-        y += 5;
-
-        // Linha divisória entre cards
-        doc.setDrawColor(200);
-        doc.setLineWidth(0.2);
-        doc.line(margin, y, pageWidth - margin, y);
-        y += 6;
-      });
-
-      doc.save("ocorrencias.pdf");
-    } catch (err) {
-      console.error("Erro ao gerar PDF:", err);
-      setAlert({ show: true, type: "error", message: "Erro ao gerar PDF" });
-    }
-  };
+const handleExportPdf = async () => {
+     try {
+         const html2pdf = (await import("html2pdf.js")).default;
+ 
+         const html = generateGeneralIncidentsPdf(incidents);
+ 
+         const element = document.createElement("div");
+         element.innerHTML = html;
+ 
+         const opt = {
+             margin: 0,
+             filename: `relatorio_ocorrencias.pdf`,
+             image: { type: "jpeg", quality: 1 },
+             html2canvas: { scale: 3 },
+             jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+         };
+ 
+         html2pdf().from(element).set(opt).save();
+ 
+     } catch (err) {
+         console.error(err);
+         setAlert({ show: true, type: "error", message: "Erro ao gerar PDF" });
+     }
+ };
 
   const filtered = incidents.filter((item) =>
     `${item.student_name} ${item.user_name} ${item.incident_type}`
