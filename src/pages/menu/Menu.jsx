@@ -28,6 +28,12 @@ function Menu() {
 
   const isAdmin = user?.user_type?.toLowerCase() === "admin";
 
+  const getImageSrc = (picture) => {
+  if (!picture) return undefined;
+  if (picture.startsWith('data:') || picture.startsWith('http')) return picture;
+  return `data:image/png;base64,${picture}`;
+};
+
   useEffect(() => {
     if (!token) {
       navigate("/");
@@ -106,6 +112,7 @@ function Menu() {
             {/* Perfil do Usuário */}
             <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
               <Avatar
+                src={getImageSrc(user?.user_picture)}
                 sx={{
                   width: 60,
                   height: 60,
@@ -114,7 +121,7 @@ function Menu() {
                   color: theme.background,
                 }}
               >
-                {user?.name?.[0]}
+                {!user?.user_picture && user?.name?.[0]}
               </Avatar>
               <Box>
                 <Typography variant="h6" sx={{ color: theme.text }}>

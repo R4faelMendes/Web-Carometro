@@ -23,9 +23,21 @@ function RegisterStudent() {
     student_name: "",
     student_cpf: "",
     fk_class_id: classId || "",
+    student_picture: null,
   });
 
   const [alert, setAlert] = useState({ show: false, type: "", message: "" });
+
+  const handleStudentPhotoChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setStudent((prev) => ({ ...prev, student_picture: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const onChange = (event) => {
     const { name, value } = event.target;
@@ -134,6 +146,51 @@ function RegisterStudent() {
               },
             }}
           />
+
+          <Box sx={{ mt: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+            <input
+              accept="image/*"
+              type="file"
+              id="upload-student-photo"
+              style={{ display: "none" }}
+              onChange={handleStudentPhotoChange}
+            />
+            <label htmlFor="upload-student-photo" style={{ width: "100%" }}>
+              <Button
+                variant="outlined"
+                component="span"
+                fullWidth
+                sx={{
+                  borderRadius: "15px",
+                  border: `2px dashed ${theme.primary}`,
+                  color: theme.primary,
+                  fontWeight: "bold",
+                  py: 1.5,
+                  textTransform: "none",
+                  "&:hover": {
+                    border: `2px dashed ${theme.secondary}`,
+                    backgroundColor: `${theme.primary}11`
+                  }
+                }}
+              >
+                {student.student_picture ? "Alterar Foto do Aluno" : "Adicionar Foto do Aluno"}
+              </Button>
+            </label>
+            {student.student_picture && (
+              <Box
+                component="img"
+                src={student.student_picture}
+                sx={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: `2px solid ${theme.primary}`,
+                  mt: 1
+                }}
+              />
+            )}
+          </Box>
 
           <Button
             type="submit"

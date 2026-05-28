@@ -40,6 +40,12 @@ function Usuarios() {
     message: "",
   });
 
+  const getImageSrc = (picture) => {
+    if (!picture) return undefined;
+    if (picture.startsWith('data:') || picture.startsWith('http')) return picture;
+    return `data:image/png;base64,${picture}`;
+  };
+
   const fetchUsers = async () => {
     try {
       const response = await api.getUsers();
@@ -52,6 +58,7 @@ function Usuarios() {
           user_email: user.user_email,
           user_cpf: user.user_cpf,
           user_type: user.user_type,
+          user_picture: user.user_picture,
         }))
       );
     } catch (error) {
@@ -194,7 +201,7 @@ function Usuarios() {
               sx={{ display: "flex", alignItems: "center", mb: 2, gap: 2 }}
             >
               <Avatar
-                src={getAvatarUrl(user.user_name)}
+                src={user.user_picture || getAvatarUrl(user.user_name)}
                 alt={user.user_name}
                 sx={{ width: 40, height: 40 }}
               />
@@ -269,7 +276,7 @@ function Usuarios() {
           {selectedUser && (
             <Box sx={{ display: "flex", justifyContent: "center", mb: 2, mt: 1 }}>
               <Avatar
-                src={getAvatarUrl(selectedUser.user_name)}
+                src={selectedUser.user_picture || getAvatarUrl(selectedUser.user_name)}
                 alt={selectedUser.user_name}
                 sx={{ width: 72, height: 72 }}
               />

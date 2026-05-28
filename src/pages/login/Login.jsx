@@ -43,6 +43,19 @@ function Login() {
     user_password: "",
   });
 
+  const [userPicture, setUserPicture] = useState(null);
+
+  const handleUserPhotoChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUserPicture(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const onChange = (event) => {
     const { name, value } = event.target;
     setUser({ ...user, [name]: value });
@@ -64,6 +77,7 @@ function Login() {
         JSON.stringify({
           name: apiUser.user_name,
           user_type: apiUser.user_type,
+          user_picture: apiUser.user_picture,
         }),
       );
 
@@ -95,14 +109,24 @@ function Login() {
       await api.updatePassword({
         user_password: passwordData.user_password,
         password: passwordData.password,
+        user_picture: userPicture,
       });
+
+      const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...storedUser,
+          user_picture: userPicture,
+        })
+      );
 
       setOpenChangePassword(false);
 
       setAlert({
         show: true,
         type: "success",
-        message: "Senha atualizada com sucesso!",
+        message: "Senha e foto atualizadas com sucesso!",
       });
 
       setTimeout(() => {
@@ -266,6 +290,51 @@ function Login() {
               ),
             }}
           />
+
+          <Box sx={{ mt: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+            <input
+              accept="image/*"
+              type="file"
+              id="upload-user-photo"
+              style={{ display: "none" }}
+              onChange={handleUserPhotoChange}
+            />
+            <label htmlFor="upload-user-photo" style={{ width: "100%" }}>
+              <Button
+                variant="outlined"
+                component="span"
+                fullWidth
+                sx={{
+                  borderRadius: "15px",
+                  border: "2px dashed #2957A4",
+                  color: "#2957A4",
+                  fontWeight: "bold",
+                  py: 1.5,
+                  textTransform: "none",
+                  "&:hover": {
+                    border: "2px dashed #2929E4",
+                    backgroundColor: "rgba(41, 87, 164, 0.05)"
+                  }
+                }}
+              >
+                {userPicture ? "Alterar Foto de Usuário" : "Adicionar Foto de Usuário"}
+              </Button>
+            </label>
+            {userPicture && (
+              <Box
+                component="img"
+                src={userPicture}
+                sx={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "2px solid #2957A4",
+                  mt: 1
+                }}
+              />
+            )}
+          </Box>
         </DialogContent>
 
         <DialogActions>

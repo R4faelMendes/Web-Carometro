@@ -1,27 +1,27 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  Box,
-  Typography,
-  IconButton,
-  Button,
-  CircularProgress,
-  Avatar,
-  Grid,
-  Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  MenuItem,
-  Tooltip,
+    Box,
+    Typography,
+    IconButton,
+    Button,
+    CircularProgress,
+    Avatar,
+    Grid,
+    Paper,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    MenuItem,
+    Tooltip,
 } from "@mui/material";
 import {
-  ArrowBack as ArrowBackIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  PictureAsPdf as PictureAsPdfIcon,
+    ArrowBack as ArrowBackIcon,
+    Edit as EditIcon,
+    Delete as DeleteIcon,
+    PictureAsPdf as PictureAsPdfIcon,
 } from "@mui/icons-material";
 import LayoutBase from "../../components/layoutBase/LayoutBase";
 import api from "../../axios/axios";
@@ -32,183 +32,183 @@ import generateStudentIncidentsPdf from "../../components/studentIncidentsTempla
 const INCIDENT_TYPES = ["Uniforme", "Celular", "Atraso", "Bullying", "Outros"];
 
 const formatCPF = (cpf) => {
-  if (!cpf) return "";
-  const cleanCPF = String(cpf).replace(/\D/g, "");
-  return cleanCPF
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    if (!cpf) return "";
+    const cleanCPF = String(cpf).replace(/\D/g, "");
+    return cleanCPF
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 };
 
 function Student() {
-  const navigate = useNavigate();
-  const { studentId } = useParams();
-  const { theme } = useTheme();
+    const navigate = useNavigate();
+    const { studentId } = useParams();
+    const { theme } = useTheme();
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const isAdmin = user?.user_type?.toLowerCase() === "admin";
+    const user = JSON.parse(localStorage.getItem("user"));
+    const isAdmin = user?.user_type?.toLowerCase() === "admin";
 
-  const [student, setStudent] = useState(null);
-  const [classes, setClasses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [alert, setAlert] = useState({ show: false, type: "", message: "" });
+    const [student, setStudent] = useState(null);
+    const [classes, setClasses] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [alert, setAlert] = useState({ show: false, type: "", message: "" });
 
-  const [openEdit, setOpenEdit] = useState(false);
-  const [openIncident, setOpenIncident] = useState(false);
-  const [openDelete, setOpenDelete] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
+    const [openIncident, setOpenIncident] = useState(false);
+    const [openDelete, setOpenDelete] = useState(false);
 
-  const [editData, setEditData] = useState({
-    student_name: "",
-    student_cpf: "",
-    fk_class_id: "",
-  });
-  const [incidentData, setIncidentData] = useState({
-    incident_type: "",
-    incident_description: "",
-  });
+    const [editData, setEditData] = useState({
+        student_name: "",
+        student_cpf: "",
+        fk_class_id: "",
+    });
+    const [incidentData, setIncidentData] = useState({
+        incident_type: "",
+        incident_description: "",
+    });
 
-  const [incidents, setIncidents] = useState([]);
-  const [selected, setSelected] = useState(null);
-  const [openEditIncident, setOpenEditIncident] = useState(false);
-  const [openDeleteIncident, setOpenDeleteIncident] = useState(false);
+    const [incidents, setIncidents] = useState([]);
+    const [selected, setSelected] = useState(null);
+    const [openEditIncident, setOpenEditIncident] = useState(false);
+    const [openDeleteIncident, setOpenDeleteIncident] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const studentsRes = await api.readAllStudents();
-      const allStudents = studentsRes.data?.data || [];
-      const currentStudent = allStudents.find(
-        (s) => s.student_id === parseInt(studentId),
-      );
+    const fetchData = useCallback(async () => {
+        try {
+            setLoading(true);
+            const studentsRes = await api.readAllStudents();
+            const allStudents = studentsRes.data?.data || [];
+            const currentStudent = allStudents.find(
+                (s) => s.student_id === parseInt(studentId),
+            );
 
-      if (currentStudent) {
-        setStudent(currentStudent);
-        setEditData({
-          student_name: currentStudent.student_name,
-          student_cpf: currentStudent.student_cpf,
-          fk_class_id: currentStudent.fk_class_id,
-        });
-      }
+            if (currentStudent) {
+                setStudent(currentStudent);
+                setEditData({
+                    student_name: currentStudent.student_name,
+                    student_cpf: currentStudent.student_cpf,
+                    fk_class_id: currentStudent.fk_class_id,
+                });
+            }
 
-      try {
-        const classesRes = await api.getAllClasses();
-        setClasses(classesRes.data?.data || []);
-      } catch {
-        setClasses([]);
-      }
-    } catch (error) {
-      setAlert({
-        show: true,
-        type: "error",
-        message: "Erro ao carregar dados do aluno.",
-      });
-      console.log("ERRO COMPLETO:", error);
-      console.log("RESPONSE:", error.response);
-    } finally {
-      setLoading(false);
-    }
-  }, [studentId]);
+            try {
+                const classesRes = await api.getAllClasses();
+                setClasses(classesRes.data?.data || []);
+            } catch {
+                setClasses([]);
+            }
+        } catch (error) {
+            setAlert({
+                show: true,
+                type: "error",
+                message: "Erro ao carregar dados do aluno.",
+            });
+            console.log("ERRO COMPLETO:", error);
+            console.log("RESPONSE:", error.response);
+        } finally {
+            setLoading(false);
+        }
+    }, [studentId]);
 
-  const fetchIncidents = useCallback(async () => {
-    try {
-      const res = await api.getIncidentsByStudentId(studentId);
-      setIncidents(res.data.data || []);
-    } catch (err) {
-      console.error("Erro ao buscar ocorrências", err);
-    }
-  }, [studentId]);
+    const fetchIncidents = useCallback(async () => {
+        try {
+            const res = await api.getIncidentsByStudentId(studentId);
+            setIncidents(res.data.data || []);
+        } catch (err) {
+            console.error("Erro ao buscar ocorrências", err);
+        }
+    }, [studentId]);
 
-  useEffect(() => {
-    fetchData();
-    fetchIncidents();
-  }, [fetchData, fetchIncidents]);
+    useEffect(() => {
+        fetchData();
+        fetchIncidents();
+    }, [fetchData, fetchIncidents]);
 
-  const getClassName = (id) => {
-    const classObj = classes.find((c) => c.class_id === id);
-    return classObj ? classObj.class_name : "Não atribuída";
-  };
+    const getClassName = (id) => {
+        const classObj = classes.find((c) => c.class_id === id);
+        return classObj ? classObj.class_name : "Não atribuída";
+    };
 
-  const handleUpdateStudent = async () => {
-    try {
-      await api.updateStudent(studentId, editData);
-      setAlert({ show: true, type: "success", message: "Aluno atualizado!" });
-      setOpenEdit(false);
-      fetchData();
-    } catch {
-      setAlert({ show: true, type: "error", message: "Erro ao atualizar." });
-    }
-  };
+    const handleUpdateStudent = async () => {
+        try {
+            await api.updateStudent(studentId, editData);
+            setAlert({ show: true, type: "success", message: "Aluno atualizado!" });
+            setOpenEdit(false);
+            fetchData();
+        } catch {
+            setAlert({ show: true, type: "error", message: "Erro ao atualizar." });
+        }
+    };
 
-  const handleCreateIncident = async () => {
-    if (!incidentData.incident_type) {
-      setAlert({
-        show: true,
-        type: "error",
-        message: "O tipo de ocorrência é obrigatório.",
-      });
-      return;
-    }
-    try {
-      await api.createIncident({ ...incidentData, fk_student_id: studentId });
-      setAlert({
-        show: true,
-        type: "success",
-        message: "Ocorrência registrada!",
-      });
-      setOpenIncident(false);
-      setIncidentData({ incident_type: "", incident_description: "" });
-      fetchIncidents();
-    } catch {
-      setAlert({
-        show: true,
-        type: "error",
-        message: "Erro ao registrar ocorrência.",
-      });
-    }
-  };
+    const handleCreateIncident = async () => {
+        if (!incidentData.incident_type) {
+            setAlert({
+                show: true,
+                type: "error",
+                message: "O tipo de ocorrência é obrigatório.",
+            });
+            return;
+        }
+        try {
+            await api.createIncident({ ...incidentData, fk_student_id: studentId });
+            setAlert({
+                show: true,
+                type: "success",
+                message: "Ocorrência registrada!",
+            });
+            setOpenIncident(false);
+            setIncidentData({ incident_type: "", incident_description: "" });
+            fetchIncidents();
+        } catch {
+            setAlert({
+                show: true,
+                type: "error",
+                message: "Erro ao registrar ocorrência.",
+            });
+        }
+    };
 
-  const handleDeleteStudent = async () => {
-    try {
-      await api.deleteStudent(studentId);
-      setAlert({ show: true, type: "success", message: "Aluno removido!" });
-      setTimeout(() => navigate(-1), 1500);
-    } catch {
-      setAlert({ show: true, type: "error", message: "Erro ao remover." });
-    }
-  };
+    const handleDeleteStudent = async () => {
+        try {
+            await api.deleteStudent(studentId);
+            setAlert({ show: true, type: "success", message: "Aluno removido!" });
+            setTimeout(() => navigate(-1), 1500);
+        } catch {
+            setAlert({ show: true, type: "error", message: "Erro ao remover." });
+        }
+    };
 
-  const confirmDeleteIncident = async () => {
-    try {
-      await api.deleteIncident(selected.incident_id);
-      setOpenDeleteIncident(false);
-      setAlert({
-        show: true,
-        type: "success",
-        message: "Ocorrência deletada!",
-      });
-      fetchIncidents();
-    } catch {
-      setAlert({ show: true, type: "error", message: "Erro ao deletar" });
-    }
-  };
+    const confirmDeleteIncident = async () => {
+        try {
+            await api.deleteIncident(selected.incident_id);
+            setOpenDeleteIncident(false);
+            setAlert({
+                show: true,
+                type: "success",
+                message: "Ocorrência deletada!",
+            });
+            fetchIncidents();
+        } catch {
+            setAlert({ show: true, type: "error", message: "Erro ao deletar" });
+        }
+    };
 
-  const saveEditIncident = async () => {
-    try {
-      await api.updateIncident(selected.incident_id, {
-        incident_type: selected.incident_type,
-        incident_description: selected.incident_description,
-      });
-      setOpenEditIncident(false);
-      setAlert({
-        show: true,
-        type: "success",
-        message: "Ocorrência atualizada!",
-      });
-      fetchIncidents();
-    } catch {
-      setAlert({ show: true, type: "error", message: "Erro ao atualizar" });
-    }
-  };
+    const saveEditIncident = async () => {
+        try {
+            await api.updateIncident(selected.incident_id, {
+                incident_type: selected.incident_type,
+                incident_description: selected.incident_description,
+            });
+            setOpenEditIncident(false);
+            setAlert({
+                show: true,
+                type: "success",
+                message: "Ocorrência atualizada!",
+            });
+            fetchIncidents();
+        } catch {
+            setAlert({ show: true, type: "error", message: "Erro ao atualizar" });
+        }
+    };
 
     const handleExportPdf = async () => {
         try {
@@ -245,6 +245,11 @@ function Student() {
         backgroundColor: theme.primary,
         color: theme.background,
         "&:hover": { backgroundColor: theme.secondary },
+    };
+    const getImageSrc = (picture) => {
+        if (!picture) return undefined;
+        if (picture.startsWith('data:') || picture.startsWith('http')) return picture;
+        return `data:image/png;base64,${picture}`;
     };
 
     const inputStyle = {
@@ -302,8 +307,11 @@ function Student() {
                             <Box sx={{ bgcolor: theme.primary, py: 1, px: 1, borderRadius: 2, textAlign: "center", width: "180px" }}>
                                 <Avatar
                                     variant="square"
+                                    src={getImageSrc(student?.student_picture)}
                                     sx={{ width: "100%", height: 130, mb: 1, borderRadius: 1, bgcolor: theme.contrast }}
-                                />
+                                >
+                                    {!student?.student_picture && student?.student_name?.[0]?.toUpperCase()}
+                                </Avatar>
                                 <Typography sx={{ color: theme.background, fontWeight: "bold", fontSize: "0.8rem" }}>
                                     ALUNO
                                 </Typography>

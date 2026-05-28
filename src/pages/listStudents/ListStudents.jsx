@@ -163,10 +163,10 @@ function StudentsList() {
                     overflow: "hidden",
                   }}
                 >
-                  {student.photo ? (
+                  {student.student_picture ? (
                     <Box
                       component="img"
-                      src={student.photo}
+                      src={student.student_picture}
                       sx={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                   ) : (
