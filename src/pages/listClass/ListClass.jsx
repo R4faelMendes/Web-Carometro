@@ -35,9 +35,15 @@ function ListClass() {
         api.getAllCourses()
       ]);
 
-      const classesArray = resClasses.data?.data || [];
-      const coursesArray = resCourses.data?.data || [];
+    console.log("RAW classes:", resClasses);
+    console.log("RAW courses:", resCourses);
 
+    const classesArray = resClasses.data?.data || [];
+    const coursesArray = resCourses.data?.data || [];
+
+    console.log("classesArray:", classesArray);
+    console.log("coursesArray:", coursesArray);
+    
       setAllCourses(coursesArray);
 
       const formatted = classesArray.map((item) => {

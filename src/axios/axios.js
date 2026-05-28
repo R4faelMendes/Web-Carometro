@@ -34,20 +34,18 @@ const apiService = {
 
   // COURSE
   createCourse: (data) => api.post("/courses", data),
-  // CORREÇÃO: rota correta do backend é /:course_id/users, não /assign-users
   assignUsersToCourse: (course_id, user_ids) =>
     api.post(`/courses/${course_id}/users`, { user_ids }),
   getAllCourses: () => api.get("/courses/me"),
   updateCourse: (course_id, data) => api.patch(`/courses/${course_id}`, data),
 
   // CLASS (Turmas)
-  createClass: (data) => api.post("/classes/", data),
-  // CORREÇÃO: rota /classes (sem /me) é admin only — rota correta para usuário comum é /classes/me
+  createClass: (data) => api.post("/classes", data),
   getClassesByUser: () => api.get("/classes/me"),
   getClassesByCourse: (courseId) => api.get(`/classes/course/${courseId}`),
   updateClass: (id, data) => api.patch(`/classes/${id}`, data),
   deleteClass: (id) => api.delete(`/classes/${id}`),
-  getAllClasses: () => api.get("/classes/me"),
+  getAllClasses: () => api.get("/classes"),
 
   // STUDENTS
   getStudentsByClass: (classId) => api.get(`/students/class/${classId}`),
@@ -61,7 +59,6 @@ const apiService = {
   createIncident: (data) => api.post("/incidents", data),
   updateIncident: (id, data) => api.patch(`/incidents/${id}`, data),
   deleteIncident: (id) => api.delete(`/incidents/${id}`),
-  // CORREÇÃO: rota correta é /incidents/student/:student_id, não /incidents/:student_id
   getIncidentsByStudentId: (studentId) => api.get(`/incidents/student/${studentId}`),
 
   // LOGS
