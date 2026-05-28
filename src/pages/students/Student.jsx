@@ -27,8 +27,18 @@ import LayoutBase from "../../components/layoutBase/LayoutBase";
 import api from "../../axios/axios";
 import CustomAlert from "../../components/customAlert/CustomAlert";
 import { useTheme } from "../../components/colors/Colors";
+import generateStudentIncidentsPdf from "../../components/studentIncidentsTemplate/StudentIncidentsTemplate";
 
 const INCIDENT_TYPES = ["Uniforme", "Celular", "Atraso", "Bullying", "Outros"];
+
+const formatCPF = (cpf) => {
+  if (!cpf) return "";
+  const cleanCPF = String(cpf).replace(/\D/g, "");
+  return cleanCPF
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+};
 
 function Student() {
   const navigate = useNavigate();
@@ -202,73 +212,23 @@ function Student() {
 
     const handleExportPdf = async () => {
         try {
-            const { default: jsPDF } = await import("https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm");
+            const html2pdf = (await import("html2pdf.js")).default;
+            const className = getClassName(student?.fk_class_id);
+            const cpf = formatCPF(student?.student_cpf);
+            const html = generateStudentIncidentsPdf(student, className, cpf, incidents);
 
-            const doc = new jsPDF();
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const margin = 14;
-            let y = 20;
+            const element = document.createElement("div");
+            element.innerHTML = html;
 
-            const studentName = student?.student_name || "Aluno";
+            const opt = {
+                margin: 1,
+                filename: `ocorrencias_${student?.student_name || "Aluno"}.pdf`,
+                image: { type: "jpeg", quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+            };
 
-            doc.setFontSize(16);
-            doc.setFont("helvetica", "bold");
-            doc.text(`Ocorrências - ${studentName}`, pageWidth / 2, y, { align: "center" });
-            y += 8;
-
-            doc.setFontSize(9);
-            doc.setFont("helvetica", "normal");
-            doc.setTextColor(120);
-            doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, pageWidth / 2, y, { align: "center" });
-            doc.setTextColor(0);
-            y += 10;
-
-            doc.setDrawColor(41, 87, 164);
-            doc.setLineWidth(0.5);
-            doc.line(margin, y, pageWidth - margin, y);
-            y += 8;
-
-            incidents.forEach((item, index) => {
-                if (y > 260) {
-                    doc.addPage();
-                    y = 20;
-                }
-
-                doc.setFillColor(41, 87, 164);
-                doc.roundedRect(margin, y, pageWidth - margin * 2, 7, 1, 1, "F");
-                doc.setFontSize(9);
-                doc.setFont("helvetica", "bold");
-                doc.setTextColor(255);
-                doc.text(`#${index + 1}  ${item.incident_type}`, margin + 3, y + 5);
-                doc.setTextColor(0);
-                y += 10;
-
-                const fields = [
-                    { label: "Aluno", value: studentName },
-                    { label: "Data", value: item.incident_date?.split("T")[0] || "—" },
-                    { label: "Descrição", value: item.incident_description || "—" },
-                ];
-
-                doc.setFontSize(9);
-                fields.forEach(({ label, value }) => {
-                    if (y > 270) { doc.addPage(); y = 20; }
-                    doc.setFont("helvetica", "bold");
-                    doc.text(`${label}:`, margin + 2, y);
-                    doc.setFont("helvetica", "normal");
-                    const lines = doc.splitTextToSize(value, pageWidth - margin * 2 - 28);
-                    doc.text(lines, margin + 28, y);
-                    y += lines.length * 5 + 1;
-                });
-
-                y += 5;
-
-                doc.setDrawColor(200);
-                doc.setLineWidth(0.2);
-                doc.line(margin, y, pageWidth - margin, y);
-                y += 6;
-            });
-
-            doc.save(`ocorrencias_${studentName}.pdf`);
+            html2pdf().from(element).set(opt).save();
         } catch (err) {
             console.error("Erro ao gerar PDF:", err);
             setAlert({ show: true, type: "error", message: "Erro ao gerar PDF" });
@@ -395,7 +355,7 @@ function Student() {
                             {[
                                 { label: "ALUNO", value: student?.student_name },
                                 { label: "TURMA", value: getClassName(student?.fk_class_id) },
-                                { label: "CPF", value: student?.student_cpf },
+                                { label: "CPF", value: formatCPF(student?.student_cpf) },
                             ].map(({ label, value }) => (
                                 <Paper
                                     key={label}
@@ -483,10 +443,10 @@ function Student() {
             <Dialog open={openEdit} onClose={() => setOpenEdit(false)} fullWidth maxWidth="xs" {...dialogProps}>
                 <DialogTitle sx={{ color: theme.text }}>Editar Aluno</DialogTitle>
                 <DialogContent dividers sx={{ borderColor: theme.primary + "44" }}>
-                    <TextField fullWidth label="Nome" margin="dense" value={editData.student_name}
+                    <TextField fullWidth label="Nome" margin="dense" value={editData.student_name || ""}
                         onChange={(e) => setEditData({ ...editData, student_name: e.target.value })} sx={inputStyle} />
-                    <TextField fullWidth label="CPF" margin="dense" value={editData.student_cpf}
-                        onChange={(e) => setEditData({ ...editData, student_cpf: e.target.value })} sx={inputStyle} />
+                    <TextField fullWidth label="CPF" margin="dense" value={formatCPF(editData.student_cpf) || ""}
+                        onChange={(e) => setEditData({ ...editData, student_cpf: formatCPF(e.target.value) })} sx={inputStyle} />
                     <TextField select fullWidth label="Turma" margin="dense" value={editData.fk_class_id}
                         onChange={(e) => setEditData({ ...editData, fk_class_id: e.target.value })}
                         sx={inputStyle}
