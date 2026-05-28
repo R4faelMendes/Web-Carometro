@@ -21,7 +21,7 @@ function LayoutBase({ children }) {
       sx={{
         minHeight: "100vh",
         width: "100vw",
-        backgroundImage: `url(${bg})`,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${bg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",

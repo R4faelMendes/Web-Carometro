@@ -184,7 +184,7 @@ function Menu() {
                   ...btnStyle,
                   backgroundColor: theme.cancel,
                   "&:hover": {
-                    filter: "brightness(0.85)",
+                    filter: "brightness(0.6)",
                     backgroundColor: theme.cancel,
                   },
                 }}

@@ -8,7 +8,8 @@ export const lightTheme = {
   focus:"#000000",
   contrast:"#f5f5f5",
   button2:"#2957A4",
-  registerT:"#FFFFFF"
+  registerT:"#FFFFFF",
+  button3:"#942609"
 };
 
 export const darkTheme = {
@@ -21,6 +22,7 @@ export const darkTheme = {
   focus:"#FFFFFF",
   contrast:"#3c3c3c",
   button2:"#a1a1a1",
-  registerT:"#FFFFFF"
+  registerT:"#FFFFFF",
+  button3:"#",
 
 };
