@@ -39,7 +39,7 @@ function Menu() {
       if (!isAdmin && token) {
         setLoading(true);
         try {
-          const response = await api.getAllClasses();
+          const response = await api.getMyClasses();
           const data = response.data?.data || [];
           setMyClasses(data);
         } catch (error) {
@@ -160,7 +160,7 @@ function Menu() {
                       <Button
                         key={cls.class_id}
                         component={Link}
-                        to={`/classes/${cls.class_id}`}
+                        to={`/class/${cls.class_id}`}
                         sx={btnStyle}
                       >
                         {cls.class_name} - {cls.course_name}

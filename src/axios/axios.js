@@ -29,23 +29,23 @@ const apiService = {
   updateUser: (user_id, data) => api.patch(`/users/${user_id}`, data),
   deleteUser: (user_id) => api.delete(`/users/${user_id}`),
   updatePassword: (data) => api.patch("/users/me/password", data),
-  // CORREÇÃO: faltava "/" antes de user_id
   resetPassword: (user_id) => api.patch(`/users/${user_id}/reset-password`),
 
   // COURSE
   createCourse: (data) => api.post("/courses", data),
   assignUsersToCourse: (course_id, user_ids) =>
     api.post(`/courses/${course_id}/users`, { user_ids }),
-  getAllCourses: () => api.get("/courses/me"),
+  getAllCourses: () => api.get("/courses"),        // admin — todos os cursos
+  getMyCourses: () => api.get("/courses/me"),      // usuário comum — só os seus
   updateCourse: (course_id, data) => api.patch(`/courses/${course_id}`, data),
 
   // CLASS (Turmas)
   createClass: (data) => api.post("/classes", data),
-  getClassesByUser: () => api.get("/classes/me"),
+  getAllClasses: () => api.get("/classes"),         // admin — todas as turmas
+  getMyClasses: () => api.get("/classes/me"),      // usuário comum — só as suas
   getClassesByCourse: (courseId) => api.get(`/classes/course/${courseId}`),
   updateClass: (id, data) => api.patch(`/classes/${id}`, data),
   deleteClass: (id) => api.delete(`/classes/${id}`),
-  getAllClasses: () => api.get("/classes"),
 
   // STUDENTS
   getStudentsByClass: (classId) => api.get(`/students/class/${classId}`),
