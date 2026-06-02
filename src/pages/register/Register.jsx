@@ -61,7 +61,7 @@ function Register() {
       "&.Mui-focused fieldset": { borderColor: theme.focus },
     },
     "& .MuiInputLabel-root": { color: theme.text, opacity: 0.7 },
-    "& .MuiInputLabel-root.Mui-focused": { color: theme.primary },
+    "& .MuiInputLabel-root.Mui-focused": { color: theme.labelRegister },
     "& input": { color: theme.text },
   };
 
@@ -130,7 +130,7 @@ function Register() {
               "& .MuiSvgIcon-root": { color: theme.text },
             }}
           >
-            <InputLabel sx={{ color: theme.text, opacity: 0.7, "&.Mui-focused": { color: theme.primary } }}>
+            <InputLabel sx={{ color: theme.text, opacity: 0.7, "&.Mui-focused": { color: theme.labelRegister } }}>
               Tipo de Usuário
             </InputLabel>
             <Select

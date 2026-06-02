@@ -19,6 +19,24 @@ import api from "../../axios/axios";
 import CustomAlert from "../../components/customAlert/CustomAlert";
 import { useTheme } from "../../components/colors/Colors";
 
+const getImageSrc = (picture) => {
+  if (!picture || typeof picture !== 'string') return undefined;
+  if (picture.startsWith('data:') || picture.startsWith('http')) return picture;
+
+  // Detect common base64 signatures
+  if (picture.startsWith('/9j/')) {
+    return `data:image/jpeg;base64,${picture}`;
+  } else if (picture.startsWith('iVBORw0KGgo')) {
+    return `data:image/png;base64,${picture}`;
+  } else if (picture.startsWith('R0lGODlh')) {
+    return `data:image/gif;base64,${picture}`;
+  } else if (picture.startsWith('UklGR')) {
+    return `data:image/webp;base64,${picture}`;
+  } else {
+    return `data:image/jpeg;base64,${picture}`;
+  }
+};
+
 function StudentsList() {
   const navigate = useNavigate();
   const { classId } = useParams();
@@ -166,7 +184,7 @@ function StudentsList() {
                   {student.student_picture ? (
                     <Box
                       component="img"
-                      src={student.student_picture}
+                      src={getImageSrc(student.student_picture)}
                       sx={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                   ) : (

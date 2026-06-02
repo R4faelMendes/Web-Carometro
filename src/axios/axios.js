@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/carometro",
+  baseURL: "http://10.89.240.37:5000/carometro",
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",

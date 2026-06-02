@@ -72,42 +72,43 @@ function Student() {
     const [openEditIncident, setOpenEditIncident] = useState(false);
     const [openDeleteIncident, setOpenDeleteIncident] = useState(false);
 
-    const fetchData = useCallback(async () => {
-        try {
-            setLoading(true);
-            const studentsRes = await api.readAllStudents();
-            const allStudents = studentsRes.data?.data || [];
-            const currentStudent = allStudents.find(
-                (s) => s.student_id === parseInt(studentId),
-            );
+const fetchData = useCallback(async () => {
+    try {
+        setLoading(true);
+        const studentsRes = await api.readAllStudents();
+        const allStudents = studentsRes.data?.data || [];
+        const currentStudent = allStudents.find(
+            (s) => s.student_id === parseInt(studentId),
+        );
 
-            if (currentStudent) {
-                setStudent(currentStudent);
-                setEditData({
-                    student_name: currentStudent.student_name,
-                    student_cpf: currentStudent.student_cpf,
-                    fk_class_id: currentStudent.fk_class_id,
-                });
-            }
-
-            try {
-                const classesRes = await api.getAllClasses();
-                setClasses(classesRes.data?.data || []);
-            } catch {
-                setClasses([]);
-            }
-        } catch (error) {
-            setAlert({
-                show: true,
-                type: "error",
-                message: "Erro ao carregar dados do aluno.",
+        if (currentStudent) {
+            setStudent(currentStudent);
+            setEditData({
+                student_name: currentStudent.student_name,
+                student_cpf: currentStudent.student_cpf,
+                fk_class_id: currentStudent.fk_class_id,
+                student_picture: currentStudent.student_picture ?? null, // ← correção aqui
             });
-            console.log("ERRO COMPLETO:", error);
-            console.log("RESPONSE:", error.response);
-        } finally {
-            setLoading(false);
         }
-    }, [studentId]);
+
+        try {
+            const classesRes = await api.getAllClasses();
+            setClasses(classesRes.data?.data || []);
+        } catch {
+            setClasses([]);
+        }
+    } catch (error) {
+        setAlert({
+            show: true,
+            type: "error",
+            message: "Erro ao carregar dados do aluno.",
+        });
+        console.log("ERRO COMPLETO:", error);
+        console.log("RESPONSE:", error.response);
+    } finally {
+        setLoading(false);
+    }
+}, [studentId]);
 
     const fetchIncidents = useCallback(async () => {
         try {
@@ -128,14 +129,43 @@ function Student() {
         return classObj ? classObj.class_name : "Não atribuída";
     };
 
-    const handleUpdateStudent = async () => {
-        try {
-            await api.updateStudent(studentId, editData);
-            setAlert({ show: true, type: "success", message: "Aluno atualizado!" });
-            setOpenEdit(false);
-            fetchData();
-        } catch {
-            setAlert({ show: true, type: "error", message: "Erro ao atualizar." });
+const handleUpdateStudent = async () => {
+  try {
+    const dataToSend = {
+      student_name: editData.student_name,
+      student_cpf: editData.student_cpf,
+      fk_class_id: editData.fk_class_id,
+    };
+
+    if (
+      editData.student_picture &&
+      typeof editData.student_picture === "string" &&
+      editData.student_picture.startsWith("data:image")
+    ) {
+      dataToSend.student_picture = editData.student_picture.replace(
+        /^data:image\/[^;]+;base64,/,
+        ""
+      );
+    }
+
+    await api.updateStudent(studentId, dataToSend);
+
+    setAlert({ show: true, type: "success", message: "Aluno atualizado!" });
+    setOpenEdit(false);
+    fetchData();
+  } catch (error) {
+    setAlert({ show: true, type: "error", message: "Erro ao atualizar." });
+  }
+};
+
+    const handleStudentPhotoChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setEditData((prev) => ({ ...prev, student_picture: reader.result }));
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -247,9 +277,20 @@ function Student() {
         "&:hover": { backgroundColor: theme.secondary },
     };
     const getImageSrc = (picture) => {
-        if (!picture) return undefined;
+        if (!picture || typeof picture !== 'string') return undefined;
         if (picture.startsWith('data:') || picture.startsWith('http')) return picture;
-        return `data:image/png;base64,${picture}`;
+        
+        if (picture.startsWith('/9j/')) {
+            return `data:image/jpeg;base64,${picture}`;
+        } else if (picture.startsWith('iVBORw0KGgo')) {
+            return `data:image/png;base64,${picture}`;
+        } else if (picture.startsWith('R0lGODlh')) {
+            return `data:image/gif;base64,${picture}`;
+        } else if (picture.startsWith('UklGR')) {
+            return `data:image/webp;base64,${picture}`;
+        } else {
+            return `data:image/jpeg;base64,${picture}`;
+        }
     };
 
     const inputStyle = {
@@ -466,6 +507,51 @@ function Student() {
                             </MenuItem>
                         ))}
                     </TextField>
+                    <Box sx={{ mt: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+                        <input
+                            accept="image/*"
+                            type="file"
+                            id="upload-student-photo-edit"
+                            style={{ display: "none" }}
+                            onChange={handleStudentPhotoChange}
+                            onClick={(e) => (e.target.value = null)}
+                        />
+                        <label htmlFor="upload-student-photo-edit" style={{ width: "100%" }}>
+                            <Button
+                                variant="outlined"
+                                component="span"
+                                fullWidth
+                                sx={{
+                                    borderRadius: "15px",
+                                    border: `2px dashed ${theme.primary}`,
+                                    color: theme.primary,
+                                    fontWeight: "bold",
+                                    py: 1.5,
+                                    textTransform: "none",
+                                    "&:hover": {
+                                        border: `2px dashed ${theme.secondary}`,
+                                        backgroundColor: `${theme.primary}11`
+                                    }
+                                }}
+                            >
+                                {editData.student_picture ? "Alterar Foto do Aluno" : "Atualizar Foto do Aluno"}
+                            </Button>
+                        </label>
+                        {(editData.student_picture || student?.student_picture) && (
+                            <Box
+                                component="img"
+                                src={editData.student_picture || getImageSrc(student?.student_picture)}
+                                sx={{
+                                    width: 80,
+                                    height: 80,
+                                    borderRadius: "50%",
+                                    objectFit: "cover",
+                                    border: `2px solid ${theme.primary}`,
+                                    mt: 1
+                                }}
+                            />
+                        )}
+                    </Box>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenEdit(false)} sx={{ color: theme.cancel }}>Cancelar</Button>

@@ -118,7 +118,7 @@ function RegisterCourse() {
       "&.Mui-focused fieldset": { borderColor: theme.focus },
     },
     "& .MuiInputLabel-root": { color: theme.text, opacity: 0.7 },
-    "& .MuiInputLabel-root.Mui-focused": { color: theme.primary },
+    "& .MuiInputLabel-root.Mui-focused": { color: theme.labelRegister },
     "& input": { color: theme.text },
   };
 

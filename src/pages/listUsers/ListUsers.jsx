@@ -41,9 +41,20 @@ function Usuarios() {
   });
 
   const getImageSrc = (picture) => {
-    if (!picture) return undefined;
+    if (!picture || typeof picture !== 'string') return undefined;
     if (picture.startsWith('data:') || picture.startsWith('http')) return picture;
-    return `data:image/png;base64,${picture}`;
+    
+    if (picture.startsWith('/9j/')) {
+      return `data:image/jpeg;base64,${picture}`;
+    } else if (picture.startsWith('iVBORw0KGgo')) {
+      return `data:image/png;base64,${picture}`;
+    } else if (picture.startsWith('R0lGODlh')) {
+      return `data:image/gif;base64,${picture}`;
+    } else if (picture.startsWith('UklGR')) {
+      return `data:image/webp;base64,${picture}`;
+    } else {
+      return `data:image/jpeg;base64,${picture}`;
+    }
   };
 
   const fetchUsers = async () => {
@@ -201,7 +212,7 @@ function Usuarios() {
               sx={{ display: "flex", alignItems: "center", mb: 2, gap: 2 }}
             >
               <Avatar
-                src={user.user_picture || getAvatarUrl(user.user_name)}
+                src={getImageSrc(user.user_picture) || getAvatarUrl(user.user_name)}
                 alt={user.user_name}
                 sx={{ width: 40, height: 40 }}
               />
