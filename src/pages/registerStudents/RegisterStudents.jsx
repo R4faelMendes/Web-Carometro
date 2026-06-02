@@ -14,6 +14,22 @@ import api from "../../axios/axios";
 import CustomAlert from "../../components/customAlert/CustomAlert";
 import { useTheme } from "../../components/colors/Colors";
 
+const getImageSrc = (picture) => {
+  if (!picture || typeof picture !== "string") return undefined;
+  if (picture.startsWith("data:") || picture.startsWith("http")) return picture;
+
+  if (picture.startsWith("/9j/")) {
+    return `data:image/jpeg;base64,${picture}`;
+  } else if (picture.startsWith("iVBORw0KGgo")) {
+    return `data:image/png;base64,${picture}`;
+  } else if (picture.startsWith("R0lGODlh")) {
+    return `data:image/gif;base64,${picture}`;
+  } else if (picture.startsWith("UklGR")) {
+    return `data:image/webp;base64,${picture}`;
+  }
+  return `data:image/jpeg;base64,${picture}`;
+};
+
 function RegisterStudent() {
   const { classId } = useParams();
   const navigate = useNavigate();
@@ -23,62 +39,68 @@ function RegisterStudent() {
     student_name: "",
     student_cpf: "",
     fk_class_id: classId || "",
-    student_picture: null,
   });
 
-  const [alert, setAlert] = useState({ show: false, type: "", message: "" });
+  const [studentPictureFile, setStudentPictureFile] = useState(null);
+  const [studentPicturePreview, setStudentPicturePreview] = useState(null);
+
+  const [alert, setAlert] = useState({
+    show: false,
+    type: "",
+    message: "",
+  });
 
   const handleStudentPhotoChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setStudent((prev) => ({ ...prev, student_picture: reader.result }));
-      };
-      reader.readAsDataURL(file);
-    }
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setStudentPicturePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+
+    setStudentPictureFile(file);
   };
 
   const onChange = (event) => {
     const { name, value } = event.target;
-    setStudent((prev) => ({ ...prev, [name]: value }));
+    setStudent((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-const handleSubmit = async (event) => {
-  event.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  try {
-    const dataToSend = {
-      student_name: student.student_name,
-      student_cpf: student.student_cpf,
-      fk_class_id: student.fk_class_id,
-    };
+    try {
+      const formData = new FormData();
+      formData.append("student_name", student.student_name);
+      formData.append("student_cpf", student.student_cpf);
+      formData.append("fk_class_id", student.fk_class_id || classId);
 
-    if (
-      student.student_picture &&
-      typeof student.student_picture === "string" &&
-      student.student_picture.startsWith("data:image")
-    ) {
-      dataToSend.student_picture = student.student_picture.replace(
-        /^data:image\/[^;]+;base64,/,
-        ""
-      );
+      if (studentPictureFile) {
+        formData.append("student_picture", studentPictureFile);
+      }
+
+      const response = await api.postStudent(formData);
+
+      setAlert({ show: true, type: "success", message: response.data.message });
+      setStudent({ student_name: "", student_cpf: "", fk_class_id: classId || "" });
+      setStudentPictureFile(null);
+      setStudentPicturePreview(null);
+
+      setTimeout(() => navigate(`/class/${classId}`), 2000);
+    } catch (error) {
+      setAlert({
+        show: true,
+        type: "error",
+        message: error.response?.data?.message || "Erro ao cadastrar aluno",
+      });
     }
+  };
 
-    const response = await api.postStudent(dataToSend);
-
-    setAlert({ show: true, type: "success", message: response.data.message });
-    setStudent({ student_name: "", student_cpf: "", fk_class_id: classId, student_picture: null });
-    setTimeout(() => navigate(`/class/${classId}`), 2000);
-
-  } catch (error) {
-    setAlert({
-      show: true,
-      type: "error",
-      message: error.response?.data?.message || "Erro ao cadastrar aluno",
-    });
-  }
-};
   const inputStyle = {
     "& .MuiOutlinedInput-root": {
       borderRadius: "15px",
@@ -101,6 +123,7 @@ const handleSubmit = async (event) => {
           <IconButton onClick={() => navigate(`/class/${classId}`)} sx={{ color: theme.registerT }}>
             <ArrowBackIcon />
           </IconButton>
+
           <Typography
             component="h1"
             variant="h4"
@@ -174,6 +197,7 @@ const handleSubmit = async (event) => {
               style={{ display: "none" }}
               onChange={handleStudentPhotoChange}
             />
+
             <label htmlFor="upload-student-photo" style={{ width: "100%" }}>
               <Button
                 variant="outlined"
@@ -188,24 +212,26 @@ const handleSubmit = async (event) => {
                   textTransform: "none",
                   "&:hover": {
                     border: `2px dashed ${theme.secondary}`,
-                    backgroundColor: `${theme.primary}`
-                  }
+                    backgroundColor: `${theme.primary}11`,
+                  },
                 }}
               >
-                {student.student_picture ? "Alterar Foto do Aluno" : "Adicionar Foto do Aluno"}
+                {studentPictureFile ? "Alterar Foto do Aluno" : "Adicionar Foto do Aluno"}
               </Button>
             </label>
-            {student.student_picture && (
+
+            {studentPicturePreview && (
               <Box
                 component="img"
-                src={student.student_picture}
+                src={getImageSrc(studentPicturePreview)}
+                alt="Foto do aluno"
                 sx={{
                   width: 80,
                   height: 80,
                   borderRadius: "50%",
                   objectFit: "cover",
                   border: `2px solid ${theme.primary}`,
-                  mt: 1
+                  mt: 1,
                 }}
               />
             )}

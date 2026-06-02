@@ -1,23 +1,24 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://10.89.240.37:5000/carometro",
+  baseURL: "http://localhost:5000/carometro",
   headers: {
-    "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = token;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = token;
+  }
+
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+
+  return config;
+}, (error) => Promise.reject(error));
 
 const apiService = {
   // AUTH
@@ -35,21 +36,21 @@ const apiService = {
   createCourse: (data) => api.post("/courses", data),
   assignUsersToCourse: (course_id, user_ids) =>
     api.post(`/courses/${course_id}/users`, { user_ids }),
-  getAllCourses: () => api.get("/courses"),        // admin — todos os cursos
-  getMyCourses: () => api.get("/courses/me"),      // usuário comum — só os seus
+  getAllCourses: () => api.get("/courses"),
+  getMyCourses: () => api.get("/courses/me"),
   updateCourse: (course_id, data) => api.patch(`/courses/${course_id}`, data),
 
-  // CLASS (Turmas)
+  // CLASS
   createClass: (data) => api.post("/classes", data),
-  getAllClasses: () => api.get("/classes"),         // admin — todas as turmas
-  getMyClasses: () => api.get("/classes/me"),      // usuário comum — só as suas
+  getAllClasses: () => api.get("/classes"),
+  getMyClasses: () => api.get("/classes/me"),
   getClassesByCourse: (courseId) => api.get(`/classes/course/${courseId}`),
   updateClass: (id, data) => api.patch(`/classes/${id}`, data),
   deleteClass: (id) => api.delete(`/classes/${id}`),
 
   // STUDENTS
   getStudentsByClass: (classId) => api.get(`/students/class/${classId}`),
-  postStudent: (data) => api.post("/students", data),
+  postStudent: (formData) => api.post("/students", formData),
   readAllStudents: () => api.get("/students"),
   updateStudent: (id, data) => api.patch(`/students/${id}`, data),
   deleteStudent: (id) => api.delete(`/students/${id}`),

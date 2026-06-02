@@ -20,17 +20,16 @@ import CustomAlert from "../../components/customAlert/CustomAlert";
 import { useTheme } from "../../components/colors/Colors";
 
 const getImageSrc = (picture) => {
-  if (!picture || typeof picture !== 'string') return undefined;
-  if (picture.startsWith('data:') || picture.startsWith('http')) return picture;
+  if (!picture || typeof picture !== "string") return undefined;
+  if (picture.startsWith("data:") || picture.startsWith("http")) return picture;
 
-  // Detect common base64 signatures
-  if (picture.startsWith('/9j/')) {
+  if (picture.startsWith("/9j/")) {
     return `data:image/jpeg;base64,${picture}`;
-  } else if (picture.startsWith('iVBORw0KGgo')) {
+  } else if (picture.startsWith("iVBORw0KGgo")) {
     return `data:image/png;base64,${picture}`;
-  } else if (picture.startsWith('R0lGODlh')) {
+  } else if (picture.startsWith("R0lGODlh")) {
     return `data:image/gif;base64,${picture}`;
-  } else if (picture.startsWith('UklGR')) {
+  } else if (picture.startsWith("UklGR")) {
     return `data:image/webp;base64,${picture}`;
   } else {
     return `data:image/jpeg;base64,${picture}`;
@@ -65,16 +64,17 @@ function StudentsList() {
     }
   }, [classId]);
 
-  useEffect(() => { fetchStudents(); }, [fetchStudents]);
+  useEffect(() => {
+    fetchStudents();
+  }, [fetchStudents]);
 
   const filteredStudents = students.filter((student) =>
-    student.student_name?.toLowerCase().includes(search.toLowerCase())
+    student.student_name?.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
     <LayoutBase>
       <Box sx={{ p: 3 }}>
-        {/* Header */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 4, mb: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <IconButton onClick={() => navigate("/menu")} sx={{ color: theme.primary }}>
@@ -129,7 +129,6 @@ function StudentsList() {
           )}
         </Box>
 
-        {/* Linha divisória */}
         <Box sx={{ borderTop: `2px solid ${theme.primary}`, pt: 1, mb: 4, ml: 6 }}>
           <Typography variant="body2" sx={{ color: theme.text, opacity: 0.6 }}>
             Clique em um aluno para visualizar os detalhes
@@ -144,7 +143,6 @@ function StudentsList() {
           />
         )}
 
-        {/* Lista de alunos */}
         {loading ? (
           <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <CircularProgress sx={{ color: theme.primary }} />
@@ -169,7 +167,6 @@ function StudentsList() {
                 }}
                 onClick={() => navigate(`/student/${student.student_id}`)}
               >
-                {/* Foto / Inicial */}
                 <Box
                   sx={{
                     width: "100%",
@@ -194,7 +191,6 @@ function StudentsList() {
                   )}
                 </Box>
 
-                {/* Nome */}
                 <Box sx={{ padding: "10px", textAlign: "center" }}>
                   <Typography sx={{ color: theme.background, fontSize: 15, fontWeight: 500 }}>
                     {student.student_name}
