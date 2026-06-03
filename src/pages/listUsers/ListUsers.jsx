@@ -287,7 +287,7 @@ function Usuarios() {
           {selectedUser && (
             <Box sx={{ display: "flex", justifyContent: "center", mb: 2, mt: 1 }}>
               <Avatar
-                src={selectedUser.user_picture || getAvatarUrl(selectedUser.user_name)}
+                src={getImageSrc(selectedUser.user_picture) || getAvatarUrl(selectedUser.user_name)}
                 alt={selectedUser.user_name}
                 sx={{ width: 72, height: 72 }}
               />

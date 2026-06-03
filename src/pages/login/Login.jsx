@@ -43,14 +43,16 @@ function Login() {
     user_password: "",
   });
 
-  const [userPicture, setUserPicture] = useState(null);
+  const [userPictureFile, setUserPictureFile] = useState(null);
+  const [userPicturePreview, setUserPicturePreview] = useState(null);
 
   const handleUserPhotoChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+      setUserPictureFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setUserPicture(reader.result);
+        setUserPicturePreview(reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -67,8 +69,8 @@ function Login() {
     try {
       const response = await api.postLogin(user);
 
-      const apiUser = response.data.data.user;   
-      const token = response.data.data.token;    
+      const apiUser = response.data.data.user;
+      const token = response.data.data.token;
 
       localStorage.setItem("token", token);
 
@@ -106,18 +108,25 @@ function Login() {
 
   const handleChangePassword = async () => {
     try {
-      await api.updatePassword({
-        user_password: passwordData.user_password,
-        password: passwordData.password,
-        user_picture: userPicture,
-      });
+      const formData = new FormData();
+      formData.append("user_password", passwordData.user_password);
+      formData.append("password", passwordData.password);
+      if (userPictureFile) {
+        formData.append("user_picture", userPictureFile);
+      }
+
+      const response = await api.updatePassword(formData);
+      const newToken = response.data?.token;
+      if (newToken) {
+        localStorage.setItem("token", newToken);
+      }
 
       const storedUser = JSON.parse(localStorage.getItem("user")) || {};
       localStorage.setItem(
         "user",
         JSON.stringify({
           ...storedUser,
-          user_picture: userPicture,
+          user_picture: userPicturePreview,
         })
       );
 
@@ -176,10 +185,14 @@ function Login() {
             name="user_email"
             value={user.user_email}
             onChange={onChange}
+            color= "#097694"
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "15px",
                 background: "white",
+              },
+              "& .MuiInputLabel-root": {
+                color: "#097694",
               },
             }}
           />
@@ -193,10 +206,14 @@ function Login() {
             name="user_password"
             value={user.user_password}
             onChange={onChange}
+            color= "#097694"
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "15px",
                 background: "white",
+              },
+              "& .MuiInputLabel-root": {
+                color: "#097694",
               },
             }}
             InputProps={{
@@ -317,13 +334,13 @@ function Login() {
                   }
                 }}
               >
-                {userPicture ? "Alterar Foto de Usuário" : "Adicionar Foto de Usuário"}
+                {userPicturePreview ? "Alterar Foto de Usuário" : "Adicionar Foto de Usuário"}
               </Button>
             </label>
-            {userPicture && (
+            {userPicturePreview && (
               <Box
                 component="img"
-                src={userPicture}
+                src={userPicturePreview}
                 sx={{
                   width: 80,
                   height: 80,

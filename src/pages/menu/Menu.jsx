@@ -29,10 +29,21 @@ function Menu() {
   const isAdmin = user?.user_type?.toLowerCase() === "admin";
 
   const getImageSrc = (picture) => {
-  if (!picture) return undefined;
-  if (picture.startsWith('data:') || picture.startsWith('http')) return picture;
-  return `data:image/png;base64,${picture}`;
-};
+    if (!picture || typeof picture !== "string") return undefined;
+    if (picture.startsWith("data:") || picture.startsWith("http")) return picture;
+
+    if (picture.startsWith("/9j/")) {
+      return `data:image/jpeg;base64,${picture}`;
+    } else if (picture.startsWith("iVBORw0KGgo")) {
+      return `data:image/png;base64,${picture}`;
+    } else if (picture.startsWith("R0lGODlh")) {
+      return `data:image/gif;base64,${picture}`;
+    } else if (picture.startsWith("UklGR")) {
+      return `data:image/webp;base64,${picture}`;
+    } else {
+      return `data:image/jpeg;base64,${picture}`;
+    }
+  };
 
   useEffect(() => {
     if (!token) {
